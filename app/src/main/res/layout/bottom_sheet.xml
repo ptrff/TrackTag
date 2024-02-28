@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Dev notes
+
+1) Here is bug with mapview and bottom sheet (bottom sheet displayed under the map), so
+it is needed to use translationZ="1000dp" to solve it
+
+2) It is clickable because mapview receive gestures being below the bottom sheet
+
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bottom_sheet_dialog_background"
+    android:clickable="true"
+    android:nestedScrollingEnabled="false"
+    android:orientation="vertical"
+    android:translationZ="1000dp"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="75dp"
+    app:layout_behavior="@string/bottom_sheet_behavior">
+
+    <View
+        android:layout_width="32dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/drag_view_background" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="0dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/search"
+            app:startIconDrawable="@drawable/ic_map">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:imeOptions="actionSearch"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</LinearLayout>
