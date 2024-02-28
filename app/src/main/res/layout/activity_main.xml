@@ -13,18 +13,35 @@
         android:layout_weight="1">
 
         <com.yandex.mapkit.mapview.MapView
-            android:id="@+id/mapview"
+            android:id="@+id/map_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
-        <include android:id="@+id/bottom_sheet" layout="@layout/bottom_sheet"/>
+        <!-- About bottom sheet:
+        1) Here is bug with mapview and bottom sheet (bottom sheet displayed under the map), so
+        it is needed to use translationZ="1000dp" to solve it
+        2) It is clickable because mapview receive gestures being below the bottom sheet-->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/bottom_sheet"
+            android:name="ru.ptrff.tracktag.HomeFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bottom_sheet_dialog_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:nestedScrollingEnabled="false"
+            android:translationZ="1000dp"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="75dp"
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            app:marginTopSystemWindowInsets="true" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
+        android:id="@+id/bottom_navigation_view"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="wrap_content"
         app:labelVisibilityMode="selected"
         app:menu="@menu/bottom_nav_menu" />
 
