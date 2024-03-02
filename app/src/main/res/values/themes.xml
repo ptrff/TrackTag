@@ -4,7 +4,8 @@
 
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
 
         <!-- Generated theme material.io -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>

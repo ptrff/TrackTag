@@ -33,8 +33,7 @@
             android:translationZ="1000dp"
             app:behavior_hideable="false"
             app:behavior_peekHeight="75dp"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            app:marginTopSystemWindowInsets="true" />
+            app:layout_behavior="@string/bottom_sheet_behavior" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

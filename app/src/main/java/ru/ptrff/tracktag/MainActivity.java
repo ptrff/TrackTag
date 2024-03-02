@@ -5,14 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentContainerView;
 
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -31,8 +33,9 @@ public class MainActivity extends AppCompatActivity {
     // -1 - auto collapsed, -2 - auto half expanded, -3 - auto expanded
     private int bottomState = 1;
 
+    private final TypedValue typedValue = new TypedValue();
     private GradientDrawable bottomSheetBackground;
-    private float bottomSheetBackgroundRadius;
+    private ValueAnimator statusColorAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         applyMapStyle();
+        setupStatusBar();
         setupBottomSheet();
     }
 
@@ -58,27 +62,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomSheet() {
-        // Setup vars for corner animation
+        // Setup bottom sheet height (original height - status bar height)
+        binding.bottomSheet.post(() -> {
+            ViewGroup.LayoutParams params = binding.bottomSheet.getLayoutParams();
+            params.height = binding.bottomSheet.getMeasuredHeight() - getStatusBarHeight();
+            binding.bottomSheet.setLayoutParams(params);
+        });
+
+        // Setup bottom sheet background for animations
         bottomSheetBackground = (GradientDrawable) ContextCompat.getDrawable(
-                this, R.drawable.bottom_sheet_dialog_background);
-        binding.bottomSheet.setBackground(bottomSheetBackground);
-        if (bottomSheetBackground.getCornerRadii() != null) {
-            bottomSheetBackgroundRadius = bottomSheetBackground.getCornerRadii()[0];
-        } else {
-            bottomSheetBackgroundRadius = 0;
-        }
+                this,
+                R.drawable.bottom_sheet_dialog_background
+        );
 
         // Setup bottom sheet states and gestures
         BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior =
                 BottomSheetBehavior.from(binding.bottomSheet);
-
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
         bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    if (bottomState != -2) animateCorners(false);
+                    changeBottomSheetCorners(false);
+                    animateStatusBarColorChange(false, 250);
                     bottomState = 2;
                 }
                 if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
@@ -89,13 +96,19 @@ public class MainActivity extends AppCompatActivity {
                     binding.bottomNavigationView.setSelectedItemId(R.id.map);
                     bottomState = 0;
                 }
+                if (newState == BottomSheetBehavior.STATE_DRAGGING
+                        && bottomSheet.getBackground() != bottomSheetBackground) {
+                    changeBottomSheetCorners(true);
+                    animateStatusBarColorChange(true, 500);
+                }
             }
 
+            // Setup gestures
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 if (bottomState < 0) return; // do not animate on auto state
 
-                if (slideOffset > 0.6f) {
+                if (slideOffset > 0.65f) {
                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 } else if (slideOffset > 0.3f) {
                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
@@ -110,48 +123,85 @@ public class MainActivity extends AppCompatActivity {
             //if (bottomState < 0) return false; // do not change state while animating
 
             if (item.getItemId() == R.id.map) {
-                if (bottomState == 2 || bottomState == -3) animateCorners(true);
                 if (bottomState != 0) bottomState = -1;
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                changeBottomSheetCorners(true);
+                animateStatusBarColorChange(true, 500);
             }
             if (item.getItemId() == R.id.home) {
-                if (bottomState == 2 || bottomState == -3) animateCorners(true);
                 if (bottomState != 1) bottomState = -2;
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+                changeBottomSheetCorners(true);
+                animateStatusBarColorChange(true, 500);
             }
             if (item.getItemId() == R.id.more) {
-                if (bottomState != 2) {
-                    bottomState = -3;
-                }
+                if (bottomState != 2) bottomState = -3;
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                changeBottomSheetCorners(false);
+                animateStatusBarColorChange(false, 250);
                 // TODO change fragment to options
             }
             return true;
         });
     }
 
-    private void animateCorners(boolean fromZero) {
-        float init, fin;
-        ValueAnimator animator;
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+    }
 
-        if (fromZero) {
-            fin = bottomSheetBackgroundRadius;
-            init = 0;
+    private void changeBottomSheetCorners(boolean rounded) {
+        if (rounded) {
+            binding.bottomSheet.setBackground(bottomSheetBackground);
         } else {
-            init = bottomSheetBackgroundRadius;
-            fin = 0;
+            getTheme().resolveAttribute(
+                    com.google.android.material.R.attr.colorSurfaceContainer,
+                    typedValue,
+                    true
+            );
+            binding.bottomSheet.setBackgroundColor(typedValue.data);
+        }
+    }
+
+    private void animateStatusBarColorChange(boolean transparent, int duration) {
+        Window window = getWindow();
+        int from = window.getStatusBarColor();
+        int to;
+        if (transparent) {
+            to = Color.TRANSPARENT;
+        } else {
+            getTheme().resolveAttribute(
+                    com.google.android.material.R.attr.colorSurfaceContainer,
+                    typedValue,
+                    true
+            );
+            to = typedValue.data;
         }
 
-        animator = ValueAnimator.ofFloat(init, fin);
-        animator.setDuration(1000);
-        animator.addUpdateListener(animation -> {
-            float animatedValue = (float) animation.getAnimatedValue();
-            bottomSheetBackground.setCornerRadii(
-                    new float[]{animatedValue, animatedValue, 0, 0, 0, 0, 0, 0}
-            );
-            binding.bottomSheet.invalidate();
-        });
-        animator.start();
+        if (from == to) return;
+
+        if (statusColorAnimator != null && statusColorAnimator.isRunning())
+            statusColorAnimator.cancel();
+
+        statusColorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), from, to);
+        statusColorAnimator.setDuration(duration);
+        statusColorAnimator.addUpdateListener(
+                animator -> window.setStatusBarColor((int) animator.getAnimatedValue())
+        );
+
+        statusColorAnimator.start();
+    }
+
+    private int getStatusBarHeight() {
+        Rect rectangle = new Rect();
+        Window window = getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        int statusBarHeight = rectangle.top;
+        int contentViewTop =
+                window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        return statusBarHeight - contentViewTop;
     }
 
     private void initMapKit() {
@@ -162,11 +212,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        MapKitFactory.getInstance().onStart();
         binding.mapView.onStart();
     }
 
     @Override
     protected void onStop() {
+        MapKitFactory.getInstance().onStop();
         binding.mapView.onStop();
         super.onStop();
     }
