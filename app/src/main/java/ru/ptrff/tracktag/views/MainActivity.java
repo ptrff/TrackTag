@@ -1,30 +1,57 @@
-package ru.ptrff.tracktag;
+package ru.ptrff.tracktag.views;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.IconStyle;
+import com.yandex.mapkit.map.Map;
+import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectTapListener;
+import com.yandex.mapkit.map.PlacemarkCreatedCallback;
+import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.runtime.connectivity.internal.ConnectivitySubscription;
+import com.yandex.runtime.image.ImageProvider;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.ptrff.tracktag.BuildConfig;
+import ru.ptrff.tracktag.R;
+import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
+import ru.ptrff.tracktag.interfaces.MapDataCallback;
+import ru.ptrff.tracktag.models.Tag;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MapDataCallback {
 
     private ActivityMainBinding binding;
 
@@ -33,9 +60,18 @@ public class MainActivity extends AppCompatActivity {
     // -1 - auto collapsed, -2 - auto half expanded, -3 - auto expanded
     private int bottomState = 1;
 
+    private BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior;
     private final TypedValue typedValue = new TypedValue();
     private GradientDrawable bottomSheetBackground;
     private ValueAnimator statusColorAnimator;
+
+    private HomeFragment homeFragment;
+
+    NavController navController;
+
+    private Map map;
+    private final List<MapObjectTapListener> placemarkTapListeners = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +82,26 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        applyMapStyle();
+        initMap();
         setupStatusBar();
         setupBottomSheet();
+
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        NavHostFragment navHostFragment = (NavHostFragment) fragmentManager.findFragmentById(R.id.bottom_sheet);
+        navController = navHostFragment.getNavController();
+        homeFragment = (HomeFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
     }
 
-    // Auto dark mode
-    private void applyMapStyle() {
+    private void initMap() {
+        // init map
+        map = binding.mapView.getMapWindow().getMap();
+
+        // Dark mode
         int nightModeFlags = getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
-
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            binding.mapView.getMapWindow().getMap().setNightModeEnabled(true);
+            map.setNightModeEnabled(true);
         }
     }
 
@@ -76,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         // Setup bottom sheet states and gestures
-        BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior =
+        bottomSheetBehavior =
                 BottomSheetBehavior.from(binding.bottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
@@ -123,26 +167,42 @@ public class MainActivity extends AppCompatActivity {
             //if (bottomState < 0) return false; // do not change state while animating
 
             if (item.getItemId() == R.id.map) {
-                if (bottomState != 0) bottomState = -1;
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                changeBottomSheetCorners(true);
-                animateStatusBarColorChange(true, 500);
+                setBottomSheerState(0);
+                homeFragment.scrollUp();
             }
             if (item.getItemId() == R.id.home) {
-                if (bottomState != 1) bottomState = -2;
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-                changeBottomSheetCorners(true);
-                animateStatusBarColorChange(true, 500);
+                setBottomSheerState(1);
+                homeFragment.scrollUp();
             }
             if (item.getItemId() == R.id.more) {
-                if (bottomState != 2) bottomState = -3;
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                changeBottomSheetCorners(false);
-                animateStatusBarColorChange(false, 250);
-                // TODO change fragment to options
+                setBottomSheerState(2);
+                navController.navigate(R.id.action_homeFragment_to_moreFragment);
+            } else {
+                navController.navigateUp();
             }
             return true;
         });
+    }
+
+    private void setBottomSheerState(int state) {
+        if (state == 1) {
+            if (bottomState != 1) bottomState = -2;
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+            changeBottomSheetCorners(true);
+            animateStatusBarColorChange(true, 500);
+        }
+        if (state == 0) {
+            if (bottomState != 0) bottomState = -1;
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            changeBottomSheetCorners(true);
+            animateStatusBarColorChange(true, 500);
+        }
+        if (state == 2) {
+            if (bottomState != 2) bottomState = -3;
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            changeBottomSheetCorners(false);
+            animateStatusBarColorChange(false, 250);
+        }
     }
 
     private void setupStatusBar() {
@@ -202,6 +262,73 @@ public class MainActivity extends AppCompatActivity {
         int contentViewTop =
                 window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
         return statusBarHeight - contentViewTop;
+    }
+
+    @Override
+    public void onTagsLoaded(List<Tag> tags) {
+        MapObjectCollection mapObjects = map.getMapObjects();
+        ImageProvider imageProvider = ImageProvider.fromResource(this, R.drawable.ic_placeholder);
+
+        IconStyle style = new IconStyle();
+        style.setAnchor(new PointF(0.5f, 1f));
+        style.setScale(0.06f);
+        for (Tag tag : tags) {
+            mapObjects.addPlacemark(placemarkMapObject -> {
+                placemarkMapObject.setIcon(imageProvider);
+                placemarkMapObject.setGeometry(
+                        new Point(
+                                tag.getLatitude(),
+                                tag.getLongitude()
+                        )
+                );
+                placemarkMapObject.setIconStyle(style);
+
+                MapObjectTapListener listener = (mapObject, point) -> {
+                    openTag(tag);
+                    return true;
+                };
+                placemarkTapListeners.add(listener);
+                placemarkMapObject.addTapListener(listener);
+            });
+        }
+    }
+
+    private void openTag(Tag tag) {
+        Fragment tagFragment = new TagFragment(tag, new TagsAdapter.TagEvents() {
+            @Override
+            public void onLikeClick(Tag tag) {
+                //TODO
+            }
+
+            @Override
+            public void onFocusClick(Tag tag) {
+                focusOnTag(tag);
+            }
+        }, () -> {
+            getSupportFragmentManager().popBackStack();
+        });
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.bottom_sheet, tagFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void focusOnTag(Tag tag) {
+        setBottomSheerState(0);
+        binding.bottomNavigationView.setSelectedItemId(R.id.map);
+
+        map.move(
+                new CameraPosition(
+                        new Point(tag.getLatitude(), tag.getLongitude()),
+                        15f,
+                        map.getCameraPosition().getAzimuth(),
+                        map.getCameraPosition().getTilt()
+                ),
+                new Animation(Animation.Type.SMOOTH, 1f),
+                null
+        );
     }
 
     private void initMapKit() {

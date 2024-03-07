@@ -4,4 +4,8 @@
     <string name="home">Главная</string>
     <string name="map">Карта</string>
     <string name="options">Опции</string>
+    <string name="photo">Фото</string>
+    <string name="like">Лайк</string>
+    <string name="show_on_map">Показать на карте</string>
+    <string name="guest">Гость</string>
 </resources>

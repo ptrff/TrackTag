@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".views.MainActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
         2) It is clickable because mapview receive gestures being below the bottom sheet-->
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/bottom_sheet"
-            android:name="ru.ptrff.tracktag.HomeFragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/bottom_sheet_dialog_background"
@@ -33,7 +33,9 @@
             android:translationZ="1000dp"
             app:behavior_hideable="false"
             app:behavior_peekHeight="75dp"
-            app:layout_behavior="@string/bottom_sheet_behavior" />
+            app:defaultNavHost="true"
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            app:navGraph="@navigation/nav_graph" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
