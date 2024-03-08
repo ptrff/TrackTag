@@ -1,10 +1,15 @@
 package ru.ptrff.tracktag.models;
 
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Tag {
+public class Tag implements Parcelable {
     @SerializedName("id")
     private String id;
 
@@ -107,5 +112,46 @@ public class Tag {
     @Override
     public boolean equals(@Nullable Object obj) {
         return super.equals(obj);
+    }
+
+    //Parcelable
+    protected Tag(Parcel in) {
+        id = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
+        description = in.readString();
+        image = in.readString();
+        likes = in.readInt();
+        isLiked = in.readByte() != 0;
+        user = in.readParcelable(User.class.getClassLoader());
+    }
+
+    public static final Creator<Tag> CREATOR = new Creator<Tag>() {
+        @Override
+        public Tag createFromParcel(Parcel in) {
+            return new Tag(in);
+        }
+
+        @Override
+        public Tag[] newArray(int size) {
+            return new Tag[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.longitude);
+        dest.writeString(this.description);
+        dest.writeString(this.image);
+        dest.writeInt(this.likes);
+        dest.writeByte(this.isLiked ? (byte) 1 : (byte) 0);
+        dest.writeParcelable(this.user, flags);
     }
 }

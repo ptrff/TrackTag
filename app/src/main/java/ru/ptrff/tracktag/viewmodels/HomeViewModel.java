@@ -2,11 +2,14 @@ package ru.ptrff.tracktag.viewmodels;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -21,6 +24,8 @@ public class HomeViewModel extends ViewModel {
     private MapsRepository repo;
     private final MutableLiveData<List<Option>> options = new MutableLiveData<>();
     private final MutableLiveData<List<Tag>> tags = new MutableLiveData<>();
+    private final List<Tag> allTags = new ArrayList<>();
+    int position = 0;
 
     public HomeViewModel() {
         repo = new MapsRepository();
@@ -44,12 +49,23 @@ public class HomeViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         receivedTags -> {
-                            tags.postValue(receivedTags);
+                            allTags.addAll(receivedTags);
+                            Collections.reverse(allTags);
+                            loadMore();
                         },
                         error -> {
                             Log.e(getClass().getCanonicalName(), error.toString());
                         }
                 );
+    }
+
+    public void loadMore(){
+        if(position + 10 <= allTags.size()){
+            position += 10;
+        }else{
+            position += allTags.size() - position;
+        }
+        tags.postValue(allTags.subList(0, position));
     }
 
     public MutableLiveData<List<Tag>> getTags() {

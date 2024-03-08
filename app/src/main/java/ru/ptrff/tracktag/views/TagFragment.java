@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,31 +19,16 @@ public class TagFragment extends Fragment {
 
     private FragmentTagBinding binding;
     private TagsAdapter.TagEvents tagEvents;
-    private TagFragmentEvents tagFragmentEvents;
 
     public TagFragment() {
-    }
-
-    private Tag tag;
-
-    public interface TagFragmentEvents{
-        void backPressed();
-    }
-
-    public TagFragment(Tag tag, TagsAdapter.TagEvents tagEvents, TagFragmentEvents tagFragmentEvents) {
-        this.tag = tag;
-        this.tagEvents = tagEvents;
-        this.tagFragmentEvents = tagFragmentEvents;
-    }
-
-    public void setTagEvents(TagsAdapter.TagEvents tagEvents) {
-        this.tagEvents = tagEvents;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentTagBinding.inflate(inflater);
+        Tag tag = getArguments().getParcelable("tag");
+        tagEvents = (TagsAdapter.TagEvents) requireActivity();
         if (tag != null) setTag(tag);
         return binding.getRoot();
     }
@@ -83,9 +69,7 @@ public class TagFragment extends Fragment {
 
             //back
             binding.backButton.setOnClickListener(v -> {
-                if (tagFragmentEvents != null) {
-                    tagFragmentEvents.backPressed();
-                }
+                getParentFragmentManager().popBackStack();
             });
         });
     }

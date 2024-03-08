@@ -20,17 +20,18 @@ import ru.ptrff.tracktag.models.Tag;
 public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
 
     private final LayoutInflater inflater;
-    private AsyncListDiffer<Tag> differ;
+    private final AsyncListDiffer<Tag> differ = new AsyncListDiffer<>(
+            this, new TagsDiffCallback()
+    );
     private TagEvents tagEvents;
 
-    public interface TagEvents{
+    public interface TagEvents {
         void onLikeClick(Tag tag);
         void onFocusClick(Tag tag);
     }
 
     public TagsAdapter(Context context) {
         this.inflater = LayoutInflater.from(context);
-        differ = new AsyncListDiffer<>(this, new TagsDiffCallback());
     }
 
     public void setTagEvents(TagEvents tagEvents) {
@@ -66,16 +67,16 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
         holder.binding.description.setText(tag.getDescription());
 
         // like
-        if(tag.getLiked()) holder.binding.likeButton.setChecked(true);
+        if (tag.getLiked()) holder.binding.likeButton.setChecked(true);
         holder.binding.likeButton.setText("" + tag.getLikes());
         holder.binding.likeButton.addOnCheckedChangeListener((button, isChecked) -> {
-            holder.binding.likeButton.post(() -> {
-                if (isChecked) {
-                    holder.binding.likeButton.setText("" + (tag.getLikes() + 1));
-                } else {
-                    holder.binding.likeButton.setText("" + tag.getLikes());
-                }
-            });
+            tag.setLiked(isChecked);
+            if (isChecked) {
+                tag.setLikes(tag.getLikes() + 1);
+            } else {
+                tag.setLikes(tag.getLikes() - 1);
+            }
+            holder.binding.likeButton.setText("" + tag.getLikes());
         });
 
         //focus

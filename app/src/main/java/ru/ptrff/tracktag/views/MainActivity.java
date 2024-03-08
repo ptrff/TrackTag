@@ -3,11 +3,9 @@ package ru.ptrff.tracktag.views;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.animation.ArgbEvaluator;
@@ -17,14 +15,12 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.yandex.mapkit.Animation;
@@ -35,9 +31,6 @@ import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.Map;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
-import com.yandex.mapkit.map.PlacemarkCreatedCallback;
-import com.yandex.mapkit.map.PlacemarkMapObject;
-import com.yandex.runtime.connectivity.internal.ConnectivitySubscription;
 import com.yandex.runtime.image.ImageProvider;
 
 import java.util.ArrayList;
@@ -51,7 +44,7 @@ import ru.ptrff.tracktag.interfaces.MapDataCallback;
 import ru.ptrff.tracktag.models.Tag;
 
 
-public class MainActivity extends AppCompatActivity implements MapDataCallback {
+public class MainActivity extends AppCompatActivity implements MapDataCallback, TagsAdapter.TagEvents {
 
     private ActivityMainBinding binding;
 
@@ -167,15 +160,15 @@ public class MainActivity extends AppCompatActivity implements MapDataCallback {
             //if (bottomState < 0) return false; // do not change state while animating
 
             if (item.getItemId() == R.id.map) {
-                setBottomSheerState(0);
+                setBottomSheetState(0);
                 homeFragment.scrollUp();
             }
             if (item.getItemId() == R.id.home) {
-                setBottomSheerState(1);
+                setBottomSheetState(1);
                 homeFragment.scrollUp();
             }
             if (item.getItemId() == R.id.more) {
-                setBottomSheerState(2);
+                setBottomSheetState(2);
                 navController.navigate(R.id.action_homeFragment_to_moreFragment);
             } else {
                 navController.navigateUp();
@@ -184,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements MapDataCallback {
         });
     }
 
-    private void setBottomSheerState(int state) {
+    private void setBottomSheetState(int state) {
         if (state == 1) {
             if (bottomState != 1) bottomState = -2;
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
@@ -294,29 +287,15 @@ public class MainActivity extends AppCompatActivity implements MapDataCallback {
     }
 
     private void openTag(Tag tag) {
-        Fragment tagFragment = new TagFragment(tag, new TagsAdapter.TagEvents() {
-            @Override
-            public void onLikeClick(Tag tag) {
-                //TODO
-            }
-
-            @Override
-            public void onFocusClick(Tag tag) {
-                focusOnTag(tag);
-            }
-        }, () -> {
-            getSupportFragmentManager().popBackStack();
-        });
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.bottom_sheet, tagFragment)
-                .addToBackStack(null)
-                .commit();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("tag", tag);
+        setBottomSheetState(2);
+        navController.navigate(R.id.action_global_tagFragment, bundle);
     }
 
     @Override
     public void focusOnTag(Tag tag) {
-        setBottomSheerState(0);
+        setBottomSheetState(0);
         binding.bottomNavigationView.setSelectedItemId(R.id.map);
 
         map.move(
@@ -329,6 +308,16 @@ public class MainActivity extends AppCompatActivity implements MapDataCallback {
                 new Animation(Animation.Type.SMOOTH, 1f),
                 null
         );
+    }
+
+    @Override
+    public void onFocusClick(Tag tag) {
+        focusOnTag(tag);
+    }
+
+    @Override
+    public void onLikeClick(Tag tag) {
+        //TODO
     }
 
     private void initMapKit() {

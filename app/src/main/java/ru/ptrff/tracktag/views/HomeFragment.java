@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +14,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
@@ -28,6 +30,8 @@ public class HomeFragment extends Fragment {
     private TagsAdapter tagsAdapter;
     private OptionsAdapter optionsAdapter;
     private MapDataCallback mapDataCallback;
+
+    private boolean gotMore = false;
 
     public HomeFragment() {
     }
@@ -67,8 +71,9 @@ public class HomeFragment extends Fragment {
 
     private void initObservers() {
         viewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
-            tagsAdapter.updateList(tags.subList(0, 10));
+            tagsAdapter.updateList(tags);
             mapDataCallback.onTagsLoaded(tags);
+            gotMore = true;
         });
 
         viewModel.getOptions().observe(getViewLifecycleOwner(), options -> {
@@ -114,7 +119,17 @@ public class HomeFragment extends Fragment {
             } else if (binding.upButton.getVisibility() == View.VISIBLE && scrollY < 100) {
                 binding.upButton.setVisibility(View.GONE);
             }
+
+
+            int fullHeight = binding.tagsList.getMeasuredHeight();
+            int oneTagSize = fullHeight / binding.tagsList.getLayoutManager().getChildCount();
+            if (binding.scrollView.getMeasuredHeight() + scrollY > fullHeight - oneTagSize && gotMore) {
+                viewModel.loadMore();
+                gotMore = false;
+            }
         });
+
+
     }
 
     public void scrollUp() {
