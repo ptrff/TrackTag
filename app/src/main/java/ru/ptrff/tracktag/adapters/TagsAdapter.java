@@ -1,14 +1,27 @@
 package ru.ptrff.tracktag.adapters;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +40,7 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
 
     public interface TagEvents {
         void onLikeClick(Tag tag);
+
         void onFocusClick(Tag tag);
     }
 
@@ -53,6 +67,29 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Tag tag = differ.getCurrentList().get(position);
+
+        // Picture
+        if(tag.getImage()!=null && !tag.getImage().isEmpty()) {
+            Glide.with(holder.binding.image.getContext())
+                    .load(tag.getImage())
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            holder.binding.image.setVisibility(View.GONE);
+                            Log.d(this.getClass().getCanonicalName(), "No image: " + tag.getImage());
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
+                    .transition(withCrossFade())
+                    .into(holder.binding.image);
+        }else{
+            holder.binding.image.setVisibility(View.GONE);
+        }
 
         // author
         if (tag.getUser() != null) {

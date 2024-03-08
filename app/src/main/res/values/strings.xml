@@ -8,4 +8,11 @@
     <string name="like">Лайк</string>
     <string name="show_on_map">Показать на карте</string>
     <string name="guest">Гость</string>
+    <string name="username">Имя пользователя</string>
+    <string name="password">Пароль</string>
+    <string name="login_and_registration">Вход и регистрация</string>
+    <string name="register">Регистрация</string>
+    <string name="login">Войти</string>
+    <string name="pull_down_to_return">Потяни вниз, чтобы вернуться</string>
+    <string name="empty_fields">Заполнены не все поля</string>
 </resources>

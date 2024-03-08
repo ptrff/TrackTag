@@ -3,6 +3,7 @@ package ru.ptrff.tracktag.api;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;
+import ru.ptrff.tracktag.models.RegisterRequest;
 import ru.ptrff.tracktag.models.Tag;
 
 public class MapsRepository {
@@ -17,4 +18,7 @@ public class MapsRepository {
         return apiService.getAllTags();
     }
 
+    public void register(RegisterRequest registerRequest){
+        apiService.register(registerRequest);
+    }
 }

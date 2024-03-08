@@ -40,11 +40,11 @@ import ru.ptrff.tracktag.BuildConfig;
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
-import ru.ptrff.tracktag.interfaces.MapDataCallback;
+import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
 
 
-public class MainActivity extends AppCompatActivity implements MapDataCallback, TagsAdapter.TagEvents {
+public class MainActivity extends AppCompatActivity implements MainFragmentCallback, TagsAdapter.TagEvents {
 
     private ActivityMainBinding binding;
 
@@ -308,6 +308,16 @@ public class MainActivity extends AppCompatActivity implements MapDataCallback, 
                 new Animation(Animation.Type.SMOOTH, 1f),
                 null
         );
+    }
+
+    @Override
+    public void performAction(int action) {
+        switch (action) {
+            case 0:
+                navController.navigate(R.id.action_global_authFragment);
+                setBottomSheetState(2);
+                break;
+        }
     }
 
     @Override

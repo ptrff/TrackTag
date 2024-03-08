@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,12 +13,11 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.databinding.FragmentHomeBinding;
-import ru.ptrff.tracktag.interfaces.MapDataCallback;
+import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
 import ru.ptrff.tracktag.viewmodels.HomeViewModel;
 
@@ -29,7 +27,7 @@ public class HomeFragment extends Fragment {
     private HomeViewModel viewModel;
     private TagsAdapter tagsAdapter;
     private OptionsAdapter optionsAdapter;
-    private MapDataCallback mapDataCallback;
+    private MainFragmentCallback mainFragmentCallback;
 
     private boolean gotMore = false;
 
@@ -46,7 +44,7 @@ public class HomeFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
-        mapDataCallback = (MapDataCallback) requireActivity();
+        mainFragmentCallback = (MainFragmentCallback) requireActivity();
     }
 
     @SuppressLint("CheckResult")
@@ -72,7 +70,7 @@ public class HomeFragment extends Fragment {
     private void initObservers() {
         viewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
             tagsAdapter.updateList(tags);
-            mapDataCallback.onTagsLoaded(tags);
+            mainFragmentCallback.onTagsLoaded(tags);
             gotMore = true;
         });
 
@@ -88,6 +86,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void initRecyclers() {
+        // tags list
         binding.tagsList.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
         tagsAdapter = new TagsAdapter(requireContext());
         tagsAdapter.setTagEvents(new TagsAdapter.TagEvents() {
@@ -98,7 +97,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFocusClick(Tag tag) {
-                mapDataCallback.focusOnTag(tag);
+                mainFragmentCallback.focusOnTag(tag);
             }
         });
         tagsAdapter.setHasStableIds(true);
@@ -106,8 +105,10 @@ public class HomeFragment extends Fragment {
 
         initTagListScrollListener();
 
+        // options list
         binding.optionsList.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         optionsAdapter = new OptionsAdapter(requireContext(), viewModel.getOptionsAsList());
+        optionsAdapter.setOptionsEvents(option -> mainFragmentCallback.performAction(option.getAction()));
         binding.optionsList.setAdapter(optionsAdapter);
     }
 

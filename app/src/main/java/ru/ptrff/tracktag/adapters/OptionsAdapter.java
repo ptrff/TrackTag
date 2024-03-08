@@ -19,11 +19,20 @@ public class OptionsAdapter extends ListAdapter<Option, OptionsAdapter.ViewHolde
 
     private final LayoutInflater inflater;
     private final List<Option> options;
+    private OptionEvents optionEvents;
+
+    public interface OptionEvents {
+        void onOptionClick(Option option);
+    }
 
     public OptionsAdapter(Context context, List<Option> options) {
         super(new OptionsDiffCallback());
         this.options = options;
         this.inflater = LayoutInflater.from(context);
+    }
+
+    public void setOptionsEvents(OptionEvents optionEvents) {
+        this.optionEvents = optionEvents;
     }
 
     @NonNull
@@ -40,6 +49,11 @@ public class OptionsAdapter extends ListAdapter<Option, OptionsAdapter.ViewHolde
         holder.binding.icon.setImageDrawable(
                 AppCompatResources.getDrawable(holder.binding.icon.getContext(), option.getIcon())
         );
+        holder.binding.getRoot().setOnClickListener(v -> {
+            if (optionEvents != null) {
+                optionEvents.onOptionClick(option);
+            }
+        });
     }
 
     @Override
