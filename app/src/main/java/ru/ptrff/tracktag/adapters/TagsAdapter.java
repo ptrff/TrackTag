@@ -69,7 +69,7 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
         Tag tag = differ.getCurrentList().get(position);
 
         // Picture
-        if(tag.getImage()!=null && !tag.getImage().isEmpty()) {
+        if (tag.getImage() != null && !tag.getImage().isEmpty()) {
             Glide.with(holder.binding.image.getContext())
                     .load(tag.getImage())
                     .listener(new RequestListener<Drawable>() {
@@ -87,7 +87,7 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
                     })
                     .transition(withCrossFade())
                     .into(holder.binding.image);
-        }else{
+        } else {
             holder.binding.image.setVisibility(View.GONE);
         }
 

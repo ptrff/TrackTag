@@ -53,6 +53,11 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     // -1 - auto collapsed, -2 - auto half expanded, -3 - auto expanded
     private int bottomState = 1;
 
+    // Current option fragment
+    // -1 - options list
+    // 0 - auth
+    private int selectedOption = -1;
+
     private BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior;
     private final TypedValue typedValue = new TypedValue();
     private GradientDrawable bottomSheetBackground;
@@ -60,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
     private HomeFragment homeFragment;
 
-    NavController navController;
+    private NavController navController;
 
     private Map map;
     private final List<MapObjectTapListener> placemarkTapListeners = new ArrayList<>();
@@ -169,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             }
             if (item.getItemId() == R.id.more) {
                 setBottomSheetState(2);
-                navController.navigate(R.id.action_homeFragment_to_moreFragment);
+                setSelectedOption();
             } else {
                 navController.navigateUp();
             }
@@ -314,10 +319,25 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     public void performAction(int action) {
         switch (action) {
             case 0:
-                navController.navigate(R.id.action_global_authFragment);
-                setBottomSheetState(2);
+                selectedOption = 0;
+                binding.bottomNavigationView.setSelectedItemId(R.id.more);
                 break;
         }
+    }
+
+    private void setSelectedOption() {
+        if (navController.getCurrentBackStack().getValue().size() >= 3) {
+            navController.popBackStack();
+        }
+        switch (selectedOption) {
+            case -1:
+                navController.navigate(R.id.action_global_moreFragment);
+                break;
+            case 0:
+                navController.navigate(R.id.action_global_authFragment);
+                break;
+        }
+        selectedOption = -1;
     }
 
     @Override

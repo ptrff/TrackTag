@@ -30,6 +30,7 @@ public class HomeFragment extends Fragment {
     private MainFragmentCallback mainFragmentCallback;
 
     private boolean gotMore = false;
+    private boolean initiated = false;
 
     public HomeFragment() {
     }
@@ -63,8 +64,10 @@ public class HomeFragment extends Fragment {
         initObservers();
         initClickListeners();
 
-
-        viewModel.getData();
+        if (!initiated) {
+            viewModel.getData();
+            initiated = true;
+        }
     }
 
     private void initObservers() {
@@ -129,8 +132,6 @@ public class HomeFragment extends Fragment {
                 gotMore = false;
             }
         });
-
-
     }
 
     public void scrollUp() {

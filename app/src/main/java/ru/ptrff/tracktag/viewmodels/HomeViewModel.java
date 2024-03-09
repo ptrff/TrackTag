@@ -32,7 +32,7 @@ public class HomeViewModel extends ViewModel {
 
         // Инициализация данных для списков
         options.setValue(Arrays.asList(
-                new Option(0, "Авторизация", R.drawable.ic_dashboard),
+                new Option(0, "Авторизация", R.drawable.ic_person),
                 new Option(2, "Регистрация", R.drawable.ic_dashboard),
                 new Option(3, "Ваши точки", R.drawable.ic_dashboard),
                 new Option(4, "Подписки", R.drawable.ic_dashboard),
