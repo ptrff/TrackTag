@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.chip.Chip;
 
+import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.databinding.DialogSearchFilterBinding;
 
 public class SearchFilterDialog extends AlertDialog {
@@ -22,19 +23,32 @@ public class SearchFilterDialog extends AlertDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DialogSearchFilterBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
 
         getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-        binding.sortByDropdown.setSimpleItems(new String[]{"a", "б", "в", "г"});
-        binding.typeDropdown.setSimpleItems(new String[]{"a", "б", "в", "г"});
+        binding = DialogSearchFilterBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        String[] chips = new String[]{"чипс1", "чипс2", "чипс3", "чипс4"};
+        setupFilters();
+        initClickListeners();
+    }
+
+    private void setupFilters() {
+        binding.filterByDropdown.setSimpleItems(new String[]{"По автору", "По описанию"});
+        binding.sortByDropdown.setSimpleItems(new String[]{"Сначала новые", "Сначала старые"});
+
+        String[] chips = new String[]{"С картинкой", "Без картинки", "От гостей", "Без лайков"};
         for (String chipText : chips) {
-            Chip chip = new Chip(getContext());
+            Chip chip = new Chip(getContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Filter);
             chip.setText(chipText);
+            chip.setCheckable(true);
+            chip.setClickable(true);
             binding.chipGroup.addView(chip);
         }
+    }
+
+    private void initClickListeners() {
+        binding.cancelButton.setOnClickListener(v -> dismiss());
+        binding.applyButton.setOnClickListener(v -> dismiss());
     }
 }

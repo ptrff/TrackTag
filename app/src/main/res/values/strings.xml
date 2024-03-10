@@ -19,6 +19,9 @@
     <string name="not_logged_in_yet">Вы ещё не вошли в систему</string>
     <string name="logout">Выйти</string>
     <string name="filters">Фильтры</string>
-    <string name="sort_by">Сортировать по..</string>
+    <string name="sort_by">Сортировать..</string>
     <string name="tags">Теги</string>
+    <string name="cancel">Отмена</string>
+    <string name="apply">Применить</string>
+    <string name="filter_by">Фильтровать..</string>
 </resources>

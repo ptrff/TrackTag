@@ -19,10 +19,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="@string/sort_by">
+        android:hint="@string/filter_by">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/sort_by_dropdown"
+            android:id="@+id/filter_by_dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none" />
@@ -34,10 +34,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Ещё что-то">
+        android:hint="@string/sort_by">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/typeDropdown"
+            android:id="@+id/sort_by_dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none" />
@@ -55,8 +55,33 @@
         android:id="@+id/chipGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:chipSpacingVertical="0dp"
+        app:singleSelection="false"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:chipSpacing="8dp"
-        app:singleSelection="false" />
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancel_button"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/apply_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/apply" />
+
+    </LinearLayout>
 
 </LinearLayout>
