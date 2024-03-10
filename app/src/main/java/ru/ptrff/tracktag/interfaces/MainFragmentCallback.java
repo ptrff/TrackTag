@@ -2,10 +2,11 @@ package ru.ptrff.tracktag.interfaces;
 
 import java.util.List;
 
+import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.models.Tag;
 
-public interface MainFragmentCallback {
+public interface MainFragmentCallback extends MoreFragmentCallback {
     void onTagsLoaded(List<Tag> tags);
     void focusOnTag(Tag tag);
-    void performAction(int action);
+    void performAction(OptionActions action);
 }

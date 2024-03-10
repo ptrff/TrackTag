@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.yandex.mapkit.Animation;
@@ -39,6 +40,7 @@ import java.util.List;
 import ru.ptrff.tracktag.BuildConfig;
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
+import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
@@ -54,9 +56,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     private int bottomState = 1;
 
     // Current option fragment
-    // -1 - options list
-    // 0 - auth
-    private int selectedOption = -1;
+    private OptionActions selectedOption = OptionActions.LIST;
 
     private BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior;
     private final TypedValue typedValue = new TypedValue();
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         FragmentManager fragmentManager = getSupportFragmentManager();
         NavHostFragment navHostFragment = (NavHostFragment) fragmentManager.findFragmentById(R.id.bottom_sheet);
         navController = navHostFragment.getNavController();
+        //TODO fix crash, remove object
         homeFragment = (HomeFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
     }
 
@@ -316,10 +317,10 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     }
 
     @Override
-    public void performAction(int action) {
+    public void performAction(OptionActions action) {
         switch (action) {
-            case 0:
-                selectedOption = 0;
+            case AUTH:
+                selectedOption = OptionActions.AUTH;
                 binding.bottomNavigationView.setSelectedItemId(R.id.more);
                 break;
         }
@@ -330,14 +331,14 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             navController.popBackStack();
         }
         switch (selectedOption) {
-            case -1:
+            case LIST:
                 navController.navigate(R.id.action_global_moreFragment);
                 break;
-            case 0:
+            case AUTH:
                 navController.navigate(R.id.action_global_authFragment);
                 break;
         }
-        selectedOption = -1;
+        selectedOption = OptionActions.LIST;
     }
 
     @Override

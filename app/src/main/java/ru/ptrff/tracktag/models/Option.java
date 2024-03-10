@@ -2,12 +2,14 @@ package ru.ptrff.tracktag.models;
 
 import androidx.annotation.Nullable;
 
+import ru.ptrff.tracktag.data.OptionActions;
+
 public class Option {
-    private final int action;
+    private final OptionActions action;
     private final String label;
     private final int icon;
 
-    public Option(int action, String label, int icon) {
+    public Option(OptionActions action, String label, int icon) {
         this.action = action;
         this.label = label;
         this.icon = icon;
@@ -21,7 +23,7 @@ public class Option {
         return icon;
     }
 
-    public int getAction() {
+    public OptionActions getAction() {
         return action;
     }
 

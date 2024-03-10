@@ -86,6 +86,11 @@ public class HomeFragment extends Fragment {
         binding.upButton.setOnClickListener(v -> {
             scrollUp();
         });
+
+        binding.searchLayout.setEndIconOnClickListener(v -> {
+            SearchFilterDialog dialog = new SearchFilterDialog(requireContext());
+            dialog.show();
+        });
     }
 
     private void initRecyclers() {

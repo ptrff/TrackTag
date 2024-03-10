@@ -16,6 +16,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.api.MapsRepository;
+import ru.ptrff.tracktag.data.Options;
 import ru.ptrff.tracktag.models.Option;
 import ru.ptrff.tracktag.models.Tag;
 
@@ -31,13 +32,7 @@ public class HomeViewModel extends ViewModel {
         repo = new MapsRepository();
 
         // Инициализация данных для списков
-        options.setValue(Arrays.asList(
-                new Option(0, "Авторизация", R.drawable.ic_person),
-                new Option(2, "Регистрация", R.drawable.ic_dashboard),
-                new Option(3, "Ваши точки", R.drawable.ic_dashboard),
-                new Option(4, "Подписки", R.drawable.ic_dashboard),
-                new Option(5, "Настройки", R.drawable.ic_dashboard)
-        ));
+        options.setValue(Options.guest);
     }
 
 
