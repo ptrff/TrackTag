@@ -1,4 +1,4 @@
-package ru.ptrff.tracktag.models;
+package ru.ptrff.tracktag.api.dto;
 
 public class RegisterRequest {
     private String username;

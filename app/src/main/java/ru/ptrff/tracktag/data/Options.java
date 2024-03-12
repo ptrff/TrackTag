@@ -14,7 +14,7 @@ public class Options {
             new Option(OptionActions.LIST, "пусто", R.drawable.ic_dashboard)
     );
 
-    public static final List<Option> authorized = Arrays.asList(
+    public static final List<Option> user = Arrays.asList(
             new Option(OptionActions.LIST, "пусто", R.drawable.ic_dashboard),
             new Option(OptionActions.LIST, "пусто", R.drawable.ic_dashboard),
             new Option(OptionActions.LIST, "пусто", R.drawable.ic_dashboard)

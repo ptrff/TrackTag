@@ -1,11 +1,15 @@
 package ru.ptrff.tracktag.views;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -90,6 +94,11 @@ public class HomeFragment extends Fragment {
         binding.searchLayout.setEndIconOnClickListener(v -> {
             SearchFilterDialog dialog = new SearchFilterDialog(requireContext());
             dialog.show();
+
+            // hide keyboard
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+            if (imm == null) return;
+            imm.hideSoftInputFromWindow(binding.searchField.getWindowToken(), 0);
         });
     }
 

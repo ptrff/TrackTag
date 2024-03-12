@@ -2,21 +2,19 @@ package ru.ptrff.tracktag.viewmodels;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.api.MapsRepository;
 import ru.ptrff.tracktag.data.Options;
+import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.models.Option;
 import ru.ptrff.tracktag.models.Tag;
 
@@ -32,9 +30,8 @@ public class HomeViewModel extends ViewModel {
         repo = new MapsRepository();
 
         // Инициализация данных для списков
-        options.setValue(Options.guest);
+        options.setValue(UserData.getInstance().isLoggedIn()? Options.user : Options.guest);
     }
-
 
     @SuppressLint("CheckResult")
     public void getData() {
@@ -48,9 +45,7 @@ public class HomeViewModel extends ViewModel {
                             Collections.reverse(allTags);
                             loadMore();
                         },
-                        error -> {
-                            Log.e(getClass().getCanonicalName(), error.toString());
-                        }
+                        throwable -> Log.e(getClass().getCanonicalName(), throwable.toString())
                 );
     }
 

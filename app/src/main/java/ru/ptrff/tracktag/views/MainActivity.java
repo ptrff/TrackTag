@@ -41,6 +41,7 @@ import ru.ptrff.tracktag.BuildConfig;
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.data.OptionActions;
+import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
@@ -75,11 +76,19 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null) initMapKit();
+        if (savedInstanceState == null) {
+            // Restore User Data
+            UserData.getInstance().restoreData(getPreferences(MODE_PRIVATE));
 
+            // Init MapKit
+            initMapKit();
+        }
+
+        // Init binding and set content view
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Init views
         initMap();
         setupStatusBar();
         setupBottomSheet();
