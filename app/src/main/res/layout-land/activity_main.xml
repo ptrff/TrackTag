@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".views.MainActivity">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.yandex.mapkit.mapview.MapView
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- About bottom sheet:
+        1) Here is bug with mapview and bottom sheet (bottom sheet displayed under the map), so
+        it is needed to use translationZ="1000dp" to solve it
+        2) It is clickable because mapview receive gestures being below the bottom sheet-->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/bottom_sheet"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bottom_sheet_dialog_background"
+            android:nestedScrollingEnabled="false"
+            android:translationZ="1000dp"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="75dp"
+            app:defaultNavHost="true"
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            app:navGraph="@navigation/nav_graph" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_view"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/bottom_nav_menu" />
+
+</LinearLayout>

@@ -30,7 +30,7 @@ public class HomeViewModel extends ViewModel {
         repo = new MapsRepository();
 
         // Инициализация данных для списков
-        options.setValue(UserData.getInstance().isLoggedIn()? Options.user : Options.guest);
+        options.setValue(UserData.getInstance().isLoggedIn() ? Options.user : Options.guest);
     }
 
     @SuppressLint("CheckResult")
@@ -49,13 +49,14 @@ public class HomeViewModel extends ViewModel {
                 );
     }
 
-    public void loadMore(){
-        if(position + 10 <= allTags.size()){
+    public void loadMore() {
+        if (position + 10 <= allTags.size()) {
             position += 10;
-        }else{
+        } else {
             position += allTags.size() - position;
         }
-        tags.postValue(allTags.subList(0, position));
+//        tags.postValue(allTags.subList(0, position));
+        tags.postValue(allTags);
     }
 
     public MutableLiveData<List<Tag>> getTags() {

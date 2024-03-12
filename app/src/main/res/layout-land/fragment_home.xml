@@ -51,7 +51,7 @@
                 android:layout_marginBottom="8dp"
                 android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
-                android:paddingEnd="8dp" />
+                android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tags_list"

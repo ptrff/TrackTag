@@ -34,6 +34,14 @@ public class UserData {
         accessToken = preferences.getString("accessToken", "");
     }
 
+    public void logout(){
+        editor.clear().commit();
+        isLoggedIn = false;
+        userId = "";
+        userName = "";
+        accessToken = "";
+    }
+
     public void setLoggedIn(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
         editor.putBoolean("isLoggedIn", isLoggedIn).commit();

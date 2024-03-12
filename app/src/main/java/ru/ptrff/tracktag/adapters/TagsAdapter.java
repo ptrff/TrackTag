@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -30,12 +31,9 @@ import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.databinding.ItemTagBinding;
 import ru.ptrff.tracktag.models.Tag;
 
-public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
+public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
 
     private final LayoutInflater inflater;
-    private final AsyncListDiffer<Tag> differ = new AsyncListDiffer<>(
-            this, new TagsDiffCallback()
-    );
     private TagEvents tagEvents;
 
     public interface TagEvents {
@@ -45,16 +43,12 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
     }
 
     public TagsAdapter(Context context) {
+        super(new TagsDiffCallback());
         this.inflater = LayoutInflater.from(context);
     }
 
     public void setTagEvents(TagEvents tagEvents) {
         this.tagEvents = tagEvents;
-    }
-
-    @SuppressLint("CheckResult")
-    public void updateList(List<Tag> newTags) {
-        differ.submitList(newTags);
     }
 
     @NonNull
@@ -66,7 +60,7 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Tag tag = differ.getCurrentList().get(position);
+        Tag tag = getItem(position);
 
         // Picture
         if (tag.getImage() != null && !tag.getImage().isEmpty()) {
@@ -122,11 +116,6 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
                 tagEvents.onFocusClick(tag);
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return differ.getCurrentList().size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

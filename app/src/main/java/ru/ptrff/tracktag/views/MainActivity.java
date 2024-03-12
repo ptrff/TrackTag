@@ -1,15 +1,8 @@
 package ru.ptrff.tracktag.views;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentContainerView;
-import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -21,7 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.yandex.mapkit.Animation;
@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     private GradientDrawable bottomSheetBackground;
     private ValueAnimator statusColorAnimator;
 
-    private HomeFragment homeFragment;
-
     private NavController navController;
 
     private Map map;
@@ -92,13 +90,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         initMap();
         setupStatusBar();
         setupBottomSheet();
-
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        NavHostFragment navHostFragment = (NavHostFragment) fragmentManager.findFragmentById(R.id.bottom_sheet);
-        navController = navHostFragment.getNavController();
-        //TODO fix crash, remove object
-        homeFragment = (HomeFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+        initNavController();
     }
 
     private void initMap() {
@@ -111,6 +103,12 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             map.setNightModeEnabled(true);
         }
+    }
+
+    private void initNavController() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        NavHostFragment navHostFragment = (NavHostFragment) fragmentManager.findFragmentById(R.id.bottom_sheet);
+        navController = navHostFragment.getNavController();
     }
 
     private void setupBottomSheet() {
@@ -176,11 +174,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
             if (item.getItemId() == R.id.map) {
                 setBottomSheetState(0);
-                homeFragment.scrollUp();
             }
             if (item.getItemId() == R.id.home) {
                 setBottomSheetState(1);
-                homeFragment.scrollUp();
             }
             if (item.getItemId() == R.id.more) {
                 setBottomSheetState(2);
@@ -335,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void setSelectedOption() {
         if (navController.getCurrentBackStack().getValue().size() >= 3) {
             navController.popBackStack();
