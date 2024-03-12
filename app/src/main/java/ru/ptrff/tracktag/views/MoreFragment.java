@@ -1,15 +1,16 @@
 package ru.ptrff.tracktag.views;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -19,7 +20,6 @@ import ru.ptrff.tracktag.data.Options;
 import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.FragmentMoreBinding;
 import ru.ptrff.tracktag.interfaces.MoreFragmentCallback;
-import ru.ptrff.tracktag.models.User;
 
 public class MoreFragment extends Fragment {
 
@@ -70,6 +70,13 @@ public class MoreFragment extends Fragment {
                     .setMessage(R.string.all_data_will_be_deleted)
                     .create().show();
         });
+
+        if (UserData.getInstance().isLoggedIn()) {
+            final TypedValue value = new TypedValue();
+            requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorAccent, value, true);
+            ColorStateList colorStateList = ColorStateList.valueOf(value.data);
+            binding.profilePic.setImageTintList(colorStateList);
+        }
     }
 
     @Override
@@ -82,7 +89,7 @@ public class MoreFragment extends Fragment {
 
             binding.notLoggedIn.setVisibility(View.GONE);
             binding.logout.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             binding.greetings.setText(getResources().getString(R.string.greetings_new));
         }
     }

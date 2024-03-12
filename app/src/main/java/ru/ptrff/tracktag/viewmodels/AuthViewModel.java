@@ -48,7 +48,7 @@ public class AuthViewModel extends ViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        this::handleLoginResponse,
+                        loginResponse -> handleLoginResponse(loginResponse, login),
                         throwable -> Log.e(getClass().getCanonicalName(), throwable.toString())
                 );
     }
@@ -69,11 +69,11 @@ public class AuthViewModel extends ViewModel {
         }
     }
 
-    private void handleLoginResponse(LoginResponse loginResponse) {
+    private void handleLoginResponse(LoginResponse loginResponse, String login) {
         if (Objects.equals(loginResponse.getTokenType(), "bearer")) {
             UserData.getInstance().setLoggedIn(true);
             UserData.getInstance().setAccessToken(loginResponse.getAccessToken());
-            authError.postValue((R.string.greetings));
+            UserData.getInstance().setUserName(login);
             loggedIn.postValue(true);
         } else if (loginResponse.getDetail() != null
                 && loginResponse.getDetail().equals("LOGIN_BAD_CREDENTIALS")) {

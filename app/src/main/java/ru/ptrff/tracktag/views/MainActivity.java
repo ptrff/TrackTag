@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     private Map map;
     private final List<MapObjectTapListener> placemarkTapListeners = new ArrayList<>();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +79,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
             // Init MapKit
             initMapKit();
+        } else {
+            bottomState = savedInstanceState.getInt("bottomState", 1);
+            selectedOption = OptionActions.values()[savedInstanceState.getInt("selectedOption")];
         }
 
         // Init binding and set content view
@@ -128,7 +130,18 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         // Setup bottom sheet states and gestures
         bottomSheetBehavior =
                 BottomSheetBehavior.from(binding.bottomSheet);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+
+        if (bottomState == 0) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+        if (bottomState == 1) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+        }
+        if (bottomState == 2) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            changeBottomSheetCorners(false);
+            animateStatusBarColorChange(false, 250);
+        }
 
         bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -345,6 +358,14 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 break;
         }
         selectedOption = OptionActions.LIST;
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("bottomState", bottomState);
+        outState.putInt("selectedOption", selectedOption.ordinal());
     }
 
     @Override

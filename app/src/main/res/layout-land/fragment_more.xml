@@ -25,9 +25,11 @@
             android:padding="8dp">
 
             <ImageView
+                android:id="@+id/profile_pic"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/ic_person" />
+                android:src="@drawable/ic_person"
+                app:tint="?attr/colorError" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/greetings"

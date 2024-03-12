@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.data.UserData;
@@ -88,6 +89,7 @@ public class AuthFragment extends Fragment {
 
         viewModel.getLoggedIn().observe(getViewLifecycleOwner(), loggedIn -> {
             if (loggedIn) {
+                //TODO: navigate to main fragment
                 getParentFragmentManager().popBackStack();
             }
         });
