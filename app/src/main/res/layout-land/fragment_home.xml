@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical"
     tools:context=".views.HomeFragment">
 
@@ -51,7 +53,8 @@
                 android:layout_marginBottom="8dp"
                 android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
-                android:visibility="gone"/>
+                android:translationZ="-1dp"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tags_list"

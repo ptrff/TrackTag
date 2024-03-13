@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -209,7 +211,8 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         });
     }
 
-    private void setBottomSheetState(int state) {
+    @Override
+    public void setBottomSheetState(int state) {
         if (state == 1) {
             if (bottomState != 1) bottomState = -2;
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
@@ -235,6 +238,21 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(Color.TRANSPARENT);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if ( v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    v.clearFocus();
+                }
+            }
+        }
+        return super.dispatchTouchEvent( event );
     }
 
     private void changeBottomSheetCorners(boolean rounded) {

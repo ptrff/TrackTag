@@ -8,6 +8,8 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,6 +109,57 @@ public class HomeFragment extends Fragment {
 
             hideKeyboard();
         });
+
+        binding.searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0 && binding.searchField.hasFocus()) {
+                    mainFragmentCallback.setBottomSheetState(2);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        binding.searchField.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                liftOptions(true);
+            } else {
+                hideKeyboard();
+                liftOptions(false);
+            }
+        });
+    }
+
+    private void liftOptions(boolean lift) {
+        float destinationY;
+        float destinationAlpha;
+        if (lift) {
+            destinationY = binding.optionsList.getHeight() * -1;
+            destinationAlpha = 0;
+        } else {
+            destinationY = 0;
+            destinationAlpha = 1;
+        }
+
+        ViewCompat
+                .animate(binding.optionsList)
+                .translationY(destinationY)
+                .alpha(destinationAlpha)
+                .setDuration(300)
+                .start();
+
+        ViewCompat
+                .animate(binding.tagsList)
+                .translationY(destinationY)
+                .setDuration(300)
+                .start();
     }
 
     private void hideKeyboard() {
