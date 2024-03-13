@@ -1,9 +1,12 @@
 package ru.ptrff.tracktag.views;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -20,10 +23,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Objects;
+
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.data.SearchFilter;
+import ru.ptrff.tracktag.data.local.TagLocalRepository;
 import ru.ptrff.tracktag.databinding.FragmentHomeBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
@@ -38,8 +44,6 @@ public class HomeFragment extends Fragment {
     private MainFragmentCallback mainFragmentCallback;
     private LinearLayoutManager tagsListLayoutManager;
 
-    private boolean initiated = false;
-
     public HomeFragment() {
     }
 
@@ -52,6 +56,10 @@ public class HomeFragment extends Fragment {
         );
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        viewModel.setLocalRepo(new TagLocalRepository(requireContext()));
+        viewModel.addNetworkConnectionListener(
+                Objects.requireNonNull(getSystemService(requireContext(), ConnectivityManager.class))
+        );
 
         mainFragmentCallback = (MainFragmentCallback) requireActivity();
     }
@@ -72,11 +80,6 @@ public class HomeFragment extends Fragment {
         initObservers();
         initClickListeners();
         checkSearchFilters();
-
-        if (!initiated) {
-            viewModel.getData();
-            initiated = true;
-        }
     }
 
     private void initObservers() {
@@ -112,13 +115,13 @@ public class HomeFragment extends Fragment {
         imm.hideSoftInputFromWindow(binding.searchField.getWindowToken(), 0);
     }
 
-    private void checkSearchFilters(){
-        if (SearchFilter.getInstance().getFilterBy()!=null){
+    private void checkSearchFilters() {
+        if (SearchFilter.getInstance().getFilterBy() != null) {
             final TypedValue value = new TypedValue();
             requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorPrimary, value, true);
             ColorStateList colorStateList = ColorStateList.valueOf(value.data);
             binding.searchLayout.setEndIconTintList(colorStateList);
-        }else{
+        } else {
             final TypedValue value = new TypedValue();
             requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorAccent, value, true);
             ColorStateList colorStateList = ColorStateList.valueOf(value.data);

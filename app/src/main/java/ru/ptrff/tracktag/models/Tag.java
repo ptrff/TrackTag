@@ -6,10 +6,21 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter;
+import androidx.room.TypeConverters;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
+import ru.ptrff.tracktag.utils.UserConverter;
+
+@Entity(tableName = "tags")
 public class Tag implements Parcelable {
+    @PrimaryKey
+    @NonNull
     @SerializedName("id")
     private String id;
 
@@ -31,10 +42,11 @@ public class Tag implements Parcelable {
     @SerializedName("is_liked")
     private boolean isLiked;
 
+    @TypeConverters({UserConverter.class})
     @SerializedName("user")
     private User user;
 
-    public Tag(String id, double latitude, double longitude, String description, String image, int likes, boolean isLiked, User user) {
+    public Tag(@NonNull String id, double latitude, double longitude, String description, String image, int likes, boolean isLiked, User user) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -45,11 +57,12 @@ public class Tag implements Parcelable {
         this.user = user;
     }
 
+    @NonNull
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 
@@ -116,7 +129,7 @@ public class Tag implements Parcelable {
 
     //Parcelable
     protected Tag(Parcel in) {
-        id = in.readString();
+        id = Objects.requireNonNull(in.readString());
         latitude = in.readDouble();
         longitude = in.readDouble();
         description = in.readString();

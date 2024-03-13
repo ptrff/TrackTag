@@ -46,7 +46,7 @@ public class TagFragment extends Fragment {
     public void setTag(Tag tag) {
         binding.tag.getRoot().post(() -> {
             // Picture
-            if (tag.getImage() != null && !tag.getImage().isEmpty()) {
+            if (tag.getImage() != null && !tag.getImage().isEmpty() && !tag.getImage().startsWith("/storage/")) {
                 Glide.with(binding.tag.image.getContext())
                         .load(tag.getImage())
                         .listener(new RequestListener<Drawable>() {

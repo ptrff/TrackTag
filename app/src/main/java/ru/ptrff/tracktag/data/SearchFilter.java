@@ -1,7 +1,7 @@
 package ru.ptrff.tracktag.data;
 
 public class SearchFilter {
-    private static SearchFilter searchFilter;
+    private static SearchFilter instance;
 
     private String filterBy;
     private String sortBy;
@@ -12,14 +12,14 @@ public class SearchFilter {
     private Boolean withNoLikes;
 
     public static SearchFilter getInstance(){
-        if(searchFilter == null){
-            searchFilter = new SearchFilter();
+        if(instance == null){
+            instance = new SearchFilter();
         }
-        return searchFilter;
+        return instance;
     }
 
     public static void removeInstance(){
-        searchFilter = null;
+        instance = null;
     }
 
     public String getFilterBy() {

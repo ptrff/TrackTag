@@ -63,7 +63,7 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
         Tag tag = getItem(position);
 
         // Picture
-        if (tag.getImage() != null && !tag.getImage().isEmpty()) {
+        if (tag.getImage() != null && !tag.getImage().isEmpty() && !tag.getImage().startsWith("/storage/")) {
             Glide.with(holder.binding.image.getContext())
                     .load(tag.getImage())
                     .listener(new RequestListener<Drawable>() {
