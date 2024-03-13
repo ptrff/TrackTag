@@ -25,6 +25,11 @@
         android:name="ru.ptrff.tracktag.views.AuthFragment"
         android:label="AuthFragment" />
 
+    <fragment
+        android:id="@+id/subsFragment"
+        android:name="ru.ptrff.tracktag.views.SubsFragment"
+        android:label="SubsFragment" />
+
 
     <action
         android:id="@+id/action_global_homeFragment"
@@ -50,6 +55,13 @@
     <action
         android:id="@+id/action_global_moreFragment"
         app:destination="@id/moreFragment"
+        app:enterAnim="@android:anim/fade_in"
+        app:exitAnim="@android:anim/fade_out"
+        app:popEnterAnim="@android:anim/fade_in"
+        app:popExitAnim="@android:anim/fade_out" />
+    <action
+        android:id="@+id/action_global_subsFragment"
+        app:destination="@id/subsFragment"
         app:enterAnim="@android:anim/fade_in"
         app:exitAnim="@android:anim/fade_out"
         app:popEnterAnim="@android:anim/fade_in"

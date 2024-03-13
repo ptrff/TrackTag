@@ -8,27 +8,30 @@
     android:layout_marginBottom="8dp"
     app:strokeWidth="0dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:padding="8dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            app:tint="?attr/colorAccent"
-            android:layout_marginEnd="8dp" />
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/pos_and_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
             android:textSize="16sp"
-            tools:text="@string/app_name" />
+            tools:text="1. Nickname" />
 
-    </LinearLayout>
+        <Button
+            style="?attr/materialIconButtonStyle"
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/cancel"
+            app:icon="@drawable/ic_close"
+            app:iconTint="?attr/colorError"
+            />
+
+    </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>

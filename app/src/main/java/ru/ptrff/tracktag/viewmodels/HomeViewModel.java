@@ -24,6 +24,7 @@ public class HomeViewModel extends ViewModel {
     private TagLocalRepository localRepo;
     private final MutableLiveData<List<Option>> options = new MutableLiveData<>();
     private final MutableLiveData<List<Tag>> tags = new MutableLiveData<>();
+    private boolean isInitiated;
 
     public HomeViewModel() {
         repo = new MapsRepository();
@@ -89,11 +90,19 @@ public class HomeViewModel extends ViewModel {
         if (connectivityManager.isDefaultNetworkActive()) {
             getData();
         }
-        connectivityManager.addDefaultNetworkActiveListener(() -> {
+        /*connectivityManager.addDefaultNetworkActiveListener(() -> {
             if (connectivityManager.isDefaultNetworkActive()) {
                 getData();
             }
-        });
+        });*/
+    }
+
+    public boolean isInitiated() {
+        return isInitiated;
+    }
+
+    public void setInitiated(boolean initiated) {
+        isInitiated = initiated;
     }
 
     public MutableLiveData<List<Tag>> getTags() {

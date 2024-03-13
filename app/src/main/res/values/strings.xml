@@ -39,6 +39,8 @@
     <string name="by_description">По описанию</string>
     <string name="new_first">Сначала новые</string>
     <string name="old_first">Сначала старые</string>
+    <string name="alphabet_authors">А-Я по авторам</string>
+    <string name="most_liked">Больше лайков</string>
     <string name="with_image">С картинкой</string>
     <string name="without_image">Без картинки</string>
     <string name="by_guests">От гостей</string>
@@ -46,4 +48,6 @@
     <string name="with_no_likes">Без лайков</string>
     <string name="add_place">Добавить место</string>
     <string name="zoom_in">Приблизить</string>
+    <string name="zoom_out">Отдалить</string>
+    <string name="subscriptions">Подписки</string>
 </resources>

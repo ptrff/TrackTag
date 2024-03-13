@@ -2,6 +2,7 @@ package ru.ptrff.tracktag.views;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
@@ -51,7 +52,9 @@ public class SearchFilterDialog extends AlertDialog {
 
         binding.sortByDropdown.setSimpleItems(new String[]{
                 getContext().getResources().getString(R.string.new_first),
-                getContext().getResources().getString(R.string.old_first)
+                getContext().getResources().getString(R.string.old_first),
+                getContext().getResources().getString(R.string.alphabet_authors),
+                getContext().getResources().getString(R.string.most_liked)
         });
 
         String[] chips = new String[]{
@@ -61,12 +64,43 @@ public class SearchFilterDialog extends AlertDialog {
                 getContext().getResources().getString(R.string.by_users),
                 getContext().getResources().getString(R.string.with_no_likes)
         };
+        Resources r = getContext().getResources();
         for (String chipText : chips) {
             Chip chip = new Chip(getContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Filter);
             chip.setText(chipText);
             chip.setCheckable(true);
             chip.setClickable(true);
+            checkChipState(chip, filter, r);
             binding.chipGroup.addView(chip);
+        }
+    }
+
+    private void checkChipState(Chip chip, SearchFilter filter, Resources r) {
+        String chipText = chip.getText().toString();
+        if (filter.getWithImage() != null
+                && filter.getWithImage()
+                && chipText.equals(r.getString(R.string.with_image))) {
+            chip.setChecked(true);
+        }
+        if (filter.getWithoutImage() != null
+                && filter.getWithoutImage()
+                && chipText.equals(r.getString(R.string.without_image))) {
+            chip.setChecked(true);
+        }
+        if (filter.getByGuests() != null
+                && filter.getByGuests()
+                && chipText.equals(r.getString(R.string.by_guests))) {
+            chip.setChecked(true);
+        }
+        if (filter.getByUsers() != null
+                && filter.getByUsers()
+                && chipText.equals(r.getString(R.string.by_users))) {
+            chip.setChecked(true);
+        }
+        if (filter.getWithNoLikes() != null
+                && filter.getWithNoLikes()
+                && chipText.equals(r.getString(R.string.with_no_likes))) {
+            chip.setChecked(true);
         }
     }
 

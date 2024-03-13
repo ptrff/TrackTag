@@ -7,9 +7,14 @@
         android:title="@string/add_place" />
 
     <item
-        android:id="@+id/zoom"
+        android:id="@+id/zoom_in"
         android:icon="@drawable/ic_zoom_in"
         android:title="@string/zoom_in" />
+
+    <item
+        android:id="@+id/zoom_out"
+        android:icon="@drawable/ic_zoom_out"
+        android:title="@string/zoom_out" />
 
     <item
         android:id="@+id/cancel"

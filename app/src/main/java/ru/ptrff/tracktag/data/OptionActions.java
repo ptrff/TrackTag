@@ -2,5 +2,8 @@ package ru.ptrff.tracktag.data;
 
 public enum OptionActions {
     LIST,
-    AUTH
+    AUTH,
+    SUBS,
+    SETTINGS,
+    ABOUT
 }

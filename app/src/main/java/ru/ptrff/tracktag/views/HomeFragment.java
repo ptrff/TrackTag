@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Objects;
 
+import io.reactivex.rxjava3.core.Completable;
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
@@ -58,10 +60,13 @@ public class HomeFragment extends Fragment {
         );
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        viewModel.setLocalRepo(new TagLocalRepository(requireContext()));
-        viewModel.addNetworkConnectionListener(
-                Objects.requireNonNull(getSystemService(requireContext(), ConnectivityManager.class))
-        );
+        if(!viewModel.isInitiated()) {
+            viewModel.setLocalRepo(new TagLocalRepository(requireContext()));
+            viewModel.addNetworkConnectionListener(
+                    Objects.requireNonNull(getSystemService(requireContext(), ConnectivityManager.class))
+            );
+            viewModel.setInitiated(true);
+        }
 
         mainFragmentCallback = (MainFragmentCallback) requireActivity();
     }
@@ -86,8 +91,9 @@ public class HomeFragment extends Fragment {
 
     private void initObservers() {
         viewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
-            tagsAdapter.submitList(tags);
+            tagsAdapter.setAllTags(tags);
             mainFragmentCallback.onTagsLoaded(tags);
+            applySearchFilters();
         });
 
         viewModel.getOptions().observe(getViewLifecycleOwner(), options -> {
@@ -102,13 +108,18 @@ public class HomeFragment extends Fragment {
 
         binding.searchLayout.setEndIconOnClickListener(v -> {
             SearchFilterDialog dialog = new SearchFilterDialog(requireContext());
-            dialog.show();
             dialog.setOnDismissListener(dialog1 -> {
                 checkSearchFilters();
+                applySearchFilters();
             });
-
-            hideKeyboard();
+            dialog.setOnShowListener(dialog1 -> {
+                if(binding.searchField.hasFocus()) {
+                    binding.searchField.clearFocus();
+                }
+            });
+            dialog.show();
         });
+
 
         binding.searchField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -124,6 +135,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                tagsAdapter.filter(s, getResources());
             }
         });
 
@@ -166,6 +178,10 @@ public class HomeFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (imm == null) return;
         imm.hideSoftInputFromWindow(binding.searchField.getWindowToken(), 0);
+    }
+
+    private void applySearchFilters(){
+        tagsAdapter.filter(binding.searchField.getText(), getResources());
     }
 
     private void checkSearchFilters() {
@@ -234,23 +250,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
-        /*binding.scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            int diff = scrollY - oldScrollY;
-            if (binding.upButton.getVisibility() == View.GONE && scrollY > 100) {
-                binding.upButton.setVisibility(View.VISIBLE);
-            } else if (binding.upButton.getVisibility() == View.VISIBLE && scrollY < 100) {
-                binding.upButton.setVisibility(View.GONE);
-            }
-
-
-            int fullHeight = binding.tagsList.getMeasuredHeight();
-            int oneTagSize = fullHeight / binding.tagsList.getLayoutManager().getChildCount();
-            if (binding.scrollView.getMeasuredHeight() + scrollY > fullHeight - oneTagSize && gotMore) {
-                viewModel.loadMore();
-                gotMore = false;
-            }
-        });*/
     }
 
     public void scrollUp() {

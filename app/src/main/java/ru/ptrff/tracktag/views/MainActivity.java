@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 
@@ -244,15 +243,15 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             View v = getCurrentFocus();
-            if ( v instanceof EditText) {
+            if (v instanceof EditText) {
                 Rect outRect = new Rect();
                 v.getGlobalVisibleRect(outRect);
-                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
                     v.clearFocus();
                 }
             }
         }
-        return super.dispatchTouchEvent( event );
+        return super.dispatchTouchEvent(event);
     }
 
     private void changeBottomSheetCorners(boolean rounded) {
@@ -346,17 +345,17 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     @Override
     public void focusOnTag(Tag tag) {
         Point point = new Point(tag.getLatitude(), tag.getLongitude());
-        focusOnPoint(point);
+        focusOnPoint(point, 15f);
     }
 
-    public void focusOnPoint(Point point) {
+    public void focusOnPoint(Point point, float zoom) {
         setBottomSheetState(0);
         binding.bottomNavigationView.setSelectedItemId(R.id.map);
 
         map.move(
                 new CameraPosition(
                         point,
-                        15f,
+                        zoom,
                         map.getCameraPosition().getAzimuth(),
                         map.getCameraPosition().getTilt()
                 ),
@@ -370,6 +369,10 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         switch (action) {
             case AUTH:
                 selectedOption = OptionActions.AUTH;
+                binding.bottomNavigationView.setSelectedItemId(R.id.more);
+                break;
+            case SUBS:
+                selectedOption = OptionActions.SUBS;
                 binding.bottomNavigationView.setSelectedItemId(R.id.more);
                 break;
         }
@@ -392,11 +395,14 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         menu.setOnDismissListener(menu1 -> setTargetPointVisible(false));
         menu.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
-            if (id==R.id.add){
+            if (id == R.id.add) {
                 //TODO
             }
-            if (id==R.id.zoom){
-                focusOnPoint(targetPoint);
+            if (id == R.id.zoom_in) {
+                focusOnPoint(targetPoint, map.getCameraPosition().getZoom() + 2);
+            }
+            if (id == R.id.zoom_out) {
+                focusOnPoint(targetPoint, map.getCameraPosition().getZoom() - 2);
             }
             return false;
         });
@@ -419,7 +425,8 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             }
 
             @Override
-            public void onMapLongTap(@NonNull Map map, @NonNull Point point) {}
+            public void onMapLongTap(@NonNull Map map, @NonNull Point point) {
+            }
         };
         map.addInputListener(mapClickListener);
     }
@@ -450,6 +457,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 break;
             case AUTH:
                 navController.navigate(R.id.action_global_authFragment);
+                break;
+            case SUBS:
+                navController.navigate(R.id.action_global_subsFragment);
                 break;
         }
         selectedOption = OptionActions.LIST;
