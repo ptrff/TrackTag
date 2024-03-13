@@ -8,12 +8,15 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +32,7 @@ import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.IconStyle;
+import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.Map;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
@@ -68,6 +72,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
     private Map map;
     private final List<MapObjectTapListener> placemarkTapListeners = new ArrayList<>();
+    private InputListener mapClickListener;
+    private float[] clickPoint;
+    private Point targetPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         setupStatusBar();
         setupBottomSheet();
         initNavController();
+        initMapClick();
     }
 
     private void initMap() {
@@ -319,12 +327,17 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
     @Override
     public void focusOnTag(Tag tag) {
+        Point point = new Point(tag.getLatitude(), tag.getLongitude());
+        focusOnPoint(point);
+    }
+
+    public void focusOnPoint(Point point) {
         setBottomSheetState(0);
         binding.bottomNavigationView.setSelectedItemId(R.id.map);
 
         map.move(
                 new CameraPosition(
-                        new Point(tag.getLatitude(), tag.getLongitude()),
+                        point,
                         15f,
                         map.getCameraPosition().getAzimuth(),
                         map.getCameraPosition().getTilt()
@@ -342,6 +355,70 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 binding.bottomNavigationView.setSelectedItemId(R.id.more);
                 break;
         }
+    }
+
+    private void initMapClick() {
+        binding.mapClickView.setOnTouchListener((v, event) -> {
+            binding.mapClickView.performClick();
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                clickPoint = new float[]{event.getX(), event.getY()};
+            }
+            return false;
+        });
+
+        PopupMenu menu = new PopupMenu(this, binding.targetPoint);
+        menu.getMenuInflater().inflate(R.menu.map_menu, menu.getMenu());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            menu.setForceShowIcon(true);
+        }
+        menu.setOnDismissListener(menu1 -> setTargetPointVisible(false));
+        menu.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id==R.id.add){
+                //TODO
+            }
+            if (id==R.id.zoom){
+                focusOnPoint(targetPoint);
+            }
+            return false;
+        });
+
+        mapClickListener = new InputListener() {
+            @Override
+            public void onMapTap(@NonNull Map map, @NonNull Point point) {
+                if (clickPoint != null) {
+                    targetPoint = point;
+                    binding.targetPoint.setTranslationX(
+                            clickPoint[0] - (float) binding.targetPoint.getWidth() / 2
+                    );
+                    binding.targetPoint.setTranslationY(
+                            clickPoint[1] - (float) binding.targetPoint.getHeight() / 2
+                    );
+                    setTargetPointVisible(true);
+                    menu.show();
+                    clickPoint = null;
+                }
+            }
+
+            @Override
+            public void onMapLongTap(@NonNull Map map, @NonNull Point point) {}
+        };
+        map.addInputListener(mapClickListener);
+    }
+
+    private void setTargetPointVisible(boolean visible) {
+        float start = binding.targetPoint.getAlpha();
+        float end;
+        if (visible) {
+            end = 1f;
+        } else {
+            end = 0f;
+        }
+
+        ValueAnimator animator = ValueAnimator.ofFloat(start, end);
+        animator.setDuration(300);
+        animator.addUpdateListener(animation -> binding.targetPoint.setAlpha((float) animation.getAnimatedValue()));
+        animator.start();
     }
 
     @SuppressLint("RestrictedApi")

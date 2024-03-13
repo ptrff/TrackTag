@@ -7,6 +7,8 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+
         <!-- Generated theme material.io -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>

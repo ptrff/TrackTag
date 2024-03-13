@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/add"
+        android:icon="@drawable/ic_add_place"
+        android:title="@string/add_place" />
+
+    <item
+        android:id="@+id/zoom"
+        android:icon="@drawable/ic_zoom_in"
+        android:title="@string/zoom_in" />
+
+    <item
+        android:id="@+id/cancel"
+        android:icon="@drawable/ic_back_hand"
+        android:title="@string/cancel" />
+
+</menu>

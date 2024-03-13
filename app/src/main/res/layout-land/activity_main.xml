@@ -12,10 +12,31 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <com.yandex.mapkit.mapview.MapView
-            android:id="@+id/map_view"
+        <RelativeLayout
+            android:id="@+id/map_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <com.yandex.mapkit.mapview.MapView
+                android:id="@+id/map_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/target_point"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:alpha="0"
+                app:srcCompat="@drawable/ic_target"
+                app:tint="?attr/colorOnSurface" />
+
+            <View
+                android:id="@+id/map_click_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </RelativeLayout>
 
         <!-- About bottom sheet:
         1) Here is bug with mapview and bottom sheet (bottom sheet displayed under the map), so

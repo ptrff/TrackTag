@@ -44,4 +44,6 @@
     <string name="by_guests">От гостей</string>
     <string name="by_users">От пользователей</string>
     <string name="with_no_likes">Без лайков</string>
+    <string name="add_place">Добавить место</string>
+    <string name="zoom_in">Приблизить</string>
 </resources>
