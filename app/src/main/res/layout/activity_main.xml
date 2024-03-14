@@ -24,8 +24,8 @@
 
             <ImageView
                 android:id="@+id/target_point"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:alpha="0"
                 app:srcCompat="@drawable/ic_target"

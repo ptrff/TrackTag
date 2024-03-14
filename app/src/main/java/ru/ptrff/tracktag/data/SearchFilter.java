@@ -3,8 +3,8 @@ package ru.ptrff.tracktag.data;
 public class SearchFilter {
     private static SearchFilter instance;
 
-    private String filterBy;
-    private String sortBy;
+    private Integer filterBy;
+    private Integer sortBy;
     private Boolean withImage;
     private Boolean withoutImage;
     private Boolean byGuests;
@@ -22,19 +22,19 @@ public class SearchFilter {
         instance = null;
     }
 
-    public String getFilterBy() {
+    public Integer getFilterBy() {
         return filterBy;
     }
 
-    public void setFilterBy(String filterBy) {
+    public void setFilterBy(Integer filterBy) {
         this.filterBy = filterBy;
     }
 
-    public String getSortBy() {
+    public Integer getSortBy() {
         return sortBy;
     }
 
-    public void setSortBy(String sortBy) {
+    public void setSortBy(Integer sortBy) {
         this.sortBy = sortBy;
     }
 

@@ -10,6 +10,9 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.chip.Chip;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.data.SearchFilter;
 import ru.ptrff.tracktag.databinding.DialogSearchFilterBinding;
@@ -17,6 +20,8 @@ import ru.ptrff.tracktag.databinding.DialogSearchFilterBinding;
 public class SearchFilterDialog extends AlertDialog {
 
     private DialogSearchFilterBinding binding;
+    private String[] filters;
+    private String[] sorts;
 
     public SearchFilterDialog(@NonNull Context context) {
         super(context);
@@ -36,26 +41,29 @@ public class SearchFilterDialog extends AlertDialog {
     }
 
     private void setupFilters() {
+        filters = new String[]{
+                getContext().getResources().getString(R.string.by_author),
+                getContext().getResources().getString(R.string.by_description)
+        };
+        sorts = new String[]{
+                getContext().getResources().getString(R.string.new_first),
+                getContext().getResources().getString(R.string.old_first),
+                getContext().getResources().getString(R.string.alphabet_authors),
+                getContext().getResources().getString(R.string.most_liked)
+        };
+
         SearchFilter filter = SearchFilter.getInstance();
         if (filter.getByUsers() != null) {
-            binding.filterByDropdown.setText(filter.getFilterBy());
-            binding.sortByDropdown.setText(filter.getSortBy());
+            binding.filterByDropdown.setText(filters[filter.getFilterBy()]);
+            binding.sortByDropdown.setText(sorts[filter.getSortBy()]);
         } else {
             binding.filterByDropdown.setText(R.string.by_author);
             binding.sortByDropdown.setText(R.string.new_first);
         }
 
-        binding.filterByDropdown.setSimpleItems(new String[]{
-                getContext().getResources().getString(R.string.by_author),
-                getContext().getResources().getString(R.string.by_description)
-        });
 
-        binding.sortByDropdown.setSimpleItems(new String[]{
-                getContext().getResources().getString(R.string.new_first),
-                getContext().getResources().getString(R.string.old_first),
-                getContext().getResources().getString(R.string.alphabet_authors),
-                getContext().getResources().getString(R.string.most_liked)
-        });
+        binding.filterByDropdown.setSimpleItems(filters);
+        binding.sortByDropdown.setSimpleItems(sorts);
 
         String[] chips = new String[]{
                 getContext().getResources().getString(R.string.with_image),
@@ -114,8 +122,16 @@ public class SearchFilterDialog extends AlertDialog {
             SearchFilter filter = SearchFilter.getInstance();
 
             // dropdown data
-            filter.setFilterBy(binding.filterByDropdown.getText().toString());
-            filter.setSortBy(binding.sortByDropdown.getText().toString());
+            int filterResourceId = Arrays.asList(filters).indexOf(
+                    binding.filterByDropdown.getText().toString()
+            );
+
+            int sortResourceId = Arrays.asList(sorts).indexOf(
+                    binding.sortByDropdown.getText().toString()
+            );
+
+            filter.setFilterBy(filterResourceId);
+            filter.setSortBy(sortResourceId);
 
             // chip data
             for (int i = 0; i < binding.chipGroup.getChildCount(); i++) {

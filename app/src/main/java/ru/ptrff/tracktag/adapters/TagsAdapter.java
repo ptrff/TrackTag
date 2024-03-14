@@ -28,10 +28,12 @@ import com.bumptech.glide.request.target.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import kotlin.collections.AbstractMutableList;
 import ru.ptrff.tracktag.R;
@@ -133,77 +135,77 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
     }
 
     public void filter(CharSequence query, Resources r) {
-        /*SearchFilter filter = SearchFilter.getInstance();
+        SearchFilter f = SearchFilter.getInstance();
 
-        if ((query == null || query.toString().isEmpty()) && filter.getSortBy() == null) {
+        if (allTags == null) return;
+        Stream<Tag> tagStream = allTags.stream();
+        if (f.getSortBy() != null) {
+            // Сортировка
+            switch (f.getSortBy()) {
+                case 2: // По алфавиту авторов
+                    tagStream = tagStream.filter(tag -> tag.getUser() != null)
+                            .sorted(Comparator.comparing(tag -> tag.getUser().getUsername()));
+                    break;
+                case 3: // По лайкам
+                    tagStream = tagStream.sorted(Comparator.comparing(Tag::getLikes).reversed());
+                    break;
+            }
             submitList(null);
-            submitList(allTags);
-            return;
         }
 
-        List<Tag> list = new ArrayList<>();
-
-        if (filter.getSortBy() == null || filter.getSortBy().equals(r.getString(R.string.new_first))) {
-            if (allTags == null) return;
-            if (!newFirst) {
-                Collections.reverse(allTags);
-                newFirst = true;
-            }
-        } else {
-            if (allTags == null) return;
-            if (newFirst) {
-                Collections.reverse(allTags);
-                newFirst = false;
-            }
+        if (f.getByUsers() != null && f.getByUsers()) {
+            tagStream = tagStream.filter(tag -> tag.getUser() != null);
+        }
+        if (f.getByGuests() != null && f.getByGuests()) {
+            tagStream = tagStream.filter(tag -> tag.getUser() == null);
+        }
+        if (f.getWithImage() != null && f.getWithImage()) {
+            tagStream = tagStream.filter(tag ->
+                    (f.getWithImage() && isImagePresent(tag.getImage()))
+                            || (!f.getWithImage() && !isImagePresent(tag.getImage()))
+            );
+        }
+        if (f.getWithoutImage() != null && f.getWithoutImage()) {
+            tagStream = tagStream.filter(tag ->
+                    (f.getWithoutImage() && !isImagePresent(tag.getImage()))
+                            || (!f.getWithoutImage() && isImagePresent(tag.getImage()))
+            );
+        }
+        if (f.getWithNoLikes() != null && f.getWithNoLikes()) {
+            tagStream = tagStream.filter(tag -> tag.getLikes() == 0);
         }
 
         if (query != null && !query.toString().isEmpty()) {
-            if (allTags == null) return;
+            String filterPattern = query.toString().toLowerCase().trim();
 
-            list.addAll(allTags.stream()
-                    .filter(item -> {
-                        boolean mask = true;
-
-                        // with image
-                        if (filter.getWithImage() != null && filter.getWithImage()) {
-                            if (item.getImage() == null || item.getImage().isEmpty() || item.getImage().startsWith("/storage/")) {
-                                mask = false;
-                            }
-                        }
-
-                        // without image
-                        if (filter.getWithoutImage() != null && filter.getWithoutImage()) {
-                            if (item.getImage() == null || item.getImage().isEmpty() || item.getImage().startsWith("/storage/")) {
-                                mask = true;
-                            }
-                        }
-
-
-                        // Filter
-                        if (filter.getFilterBy() == null ||
-                                filter.getFilterBy().equals(r.getString(R.string.by_author))) {
-                            if (item.getUser() != null) {
-                                mask = mask && item.getUser().getUsername().toLowerCase().contains(query.toString().toLowerCase());
-                            } else {
-                                mask = false;
-                            }
-                        } else {
-                            mask = mask && item.getDescription().toLowerCase().contains(query.toString().toLowerCase());
-                        }
-
-                        return mask;
-                    })
-                    .collect(Collectors.toList()));
-
-            submitList(list);
-            return;
+            if (f.getFilterBy() == null || f.getFilterBy() == 0) {
+                // По автору
+                tagStream = tagStream.filter(
+                        tag -> tag.getUser() != null
+                                && tag.getUser().getUsername() != null
+                                && tag.getUser().getUsername().toLowerCase().contains(filterPattern)
+                );
+            } else {
+                // По описанию
+                tagStream = tagStream.filter(
+                        tag -> tag.getDescription() != null
+                                && tag.getDescription().toLowerCase().contains(filterPattern)
+                );
+            }
         }
 
-        // submit all tags (no filter)*/
-//        submitList(null);
-        // TODO rework
-        submitList(allTags);
+        List<Tag> filteredList = tagStream.collect(Collectors.toList());
+        if (f.getSortBy() != null && f.getSortBy() == 1) {
+            Collections.reverse(filteredList);
+        }
+
+        submitList(filteredList);
     }
+
+    private boolean isImagePresent(String imageUrl) {
+        return imageUrl != null && !imageUrl.startsWith("/storage/");
+    }
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ItemTagBinding binding;
