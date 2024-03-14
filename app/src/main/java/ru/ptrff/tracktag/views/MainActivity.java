@@ -3,6 +3,7 @@ package ru.ptrff.tracktag.views;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 
@@ -50,6 +52,7 @@ import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
+import ru.ptrff.tracktag.models.User;
 
 
 public class MainActivity extends AppCompatActivity implements MainFragmentCallback, TagsAdapter.TagEvents {
@@ -248,11 +251,16 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 v.getGlobalVisibleRect(outRect);
                 if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
                     v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
                 }
             }
         }
         return super.dispatchTouchEvent(event);
     }
+
 
     private void changeBottomSheetCorners(boolean rounded) {
         if (rounded) {
@@ -396,7 +404,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         menu.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.add) {
-                //TODO
+                setTargetPointVisible(false);
+                setBottomSheetState(2);
+                navController.navigate(R.id.action_global_addTagFragment);
             }
             if (id == R.id.zoom_in) {
                 focusOnPoint(targetPoint, map.getCameraPosition().getZoom() + 2);
@@ -474,13 +484,19 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     }
 
     @Override
-    public void onFocusClick(Tag tag) {
-        focusOnTag(tag);
+    public void onLikeClick(Tag tag) {
+        // TODO
     }
 
     @Override
-    public void onLikeClick(Tag tag) {
-        //TODO
+    public void onSubscribeClick(Tag tag) {
+        UserData data = UserData.getInstance();
+        User user = tag.getUser();
+        if (!data.isSubscribed(user)) {
+            data.addSub(user);
+        } else {
+            data.removeSub(user);
+        }
     }
 
     private void initMapKit() {

@@ -8,26 +8,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ItemSubBinding;
 import ru.ptrff.tracktag.models.Option;
+import ru.ptrff.tracktag.models.User;
 
 public class SubsAdapter extends RecyclerView.Adapter<SubsAdapter.ViewHolder> {
 
-    private List<Option> subs;
+    private List<User> subs;
     private LayoutInflater inflater;
-    private ClickListener clickListener;
 
-    public interface ClickListener {
-        void onCancelClick(Option option);
-    }
-
-    public void setOnOptionClickListener(ClickListener clickListener) {
-        this.clickListener = clickListener;
-    }
-
-    public SubsAdapter(LayoutInflater inflater, List<Option> subs) {
+    public SubsAdapter(LayoutInflater inflater) {
         this.inflater = inflater;
-        this.subs = subs;
+        this.subs = UserData.getInstance().getSubs();
     }
 
 
@@ -41,11 +34,13 @@ public class SubsAdapter extends RecyclerView.Adapter<SubsAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.binding.posAndName.setText(
-                (position + 1) + ". " + subs.get(position).getLabel()
+                (position + 1) + ". " + subs.get(position).getUsername()
         );
 
         holder.binding.cancel.setOnClickListener(v -> {
-            clickListener.onCancelClick(subs.get(position));
+            UserData.getInstance().removeSub(subs.get(position));
+            subs.remove(position);
+            notifyDataSetChanged();
         });
     }
 

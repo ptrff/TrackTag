@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 import kotlin.collections.AbstractMutableList;
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.data.SearchFilter;
+import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ItemTagBinding;
 import ru.ptrff.tracktag.models.Tag;
 
@@ -46,12 +47,11 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
     private final LayoutInflater inflater;
     private TagEvents tagEvents;
     private List<Tag> allTags;
-    private boolean newFirst = true;
 
     public interface TagEvents {
         void onLikeClick(Tag tag);
-
-        void onFocusClick(Tag tag);
+        void onSubscribeClick(Tag tag);
+        void focusOnTag(Tag tag);
     }
 
     public TagsAdapter(Context context) {
@@ -104,11 +104,19 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
         // author
         if (tag.getUser() != null) {
             holder.binding.author.setText(tag.getUser().getUsername());
+            holder.binding.subButton.setOnClickListener(v -> {
+                if (tagEvents != null) {
+                    tagEvents.onSubscribeClick(tag);
+                }
+            });
+            if(UserData.getInstance().isSubscribed(tag.getUser())) {
+                holder.binding.subButton.setChecked(true);
+            }
         } else {
-            holder.binding.author.setText(
-                    R.string.guest
-            );
+            holder.binding.author.setText(R.string.guest);
+            holder.binding.subButton.setVisibility(View.GONE);
         }
+
 
         // description
         holder.binding.description.setText(tag.getDescription());
@@ -129,7 +137,7 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
         //focus
         holder.binding.focusButton.setOnClickListener(v -> {
             if (tagEvents != null) {
-                tagEvents.onFocusClick(tag);
+                tagEvents.focusOnTag(tag);
             }
         });
     }

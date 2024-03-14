@@ -210,7 +210,12 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onFocusClick(Tag tag) {
+            public void onSubscribeClick(Tag tag) {
+                mainFragmentCallback.onSubscribeClick(tag);
+            }
+
+            @Override
+            public void focusOnTag(Tag tag) {
                 mainFragmentCallback.focusOnTag(tag);
             }
         });

@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import ru.ptrff.tracktag.adapters.SubsAdapter;
-import ru.ptrff.tracktag.data.Options;
 import ru.ptrff.tracktag.databinding.FragmentSubsBinding;
 
 public class SubsFragment extends Fragment {
@@ -39,8 +38,7 @@ public class SubsFragment extends Fragment {
 
         binding.subsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         SubsAdapter adapter = new SubsAdapter(
-                getLayoutInflater(),
-                Options.user
+                getLayoutInflater()
         );
         binding.subsList.setAdapter(adapter);
     }

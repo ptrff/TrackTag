@@ -51,4 +51,8 @@
     <string name="zoom_out">Отдалить</string>
     <string name="subscriptions">Подписки</string>
     <string name="subscription">Подписка</string>
+    <string name="type_description">Введите описание</string>
+    <string name="done">Готово</string>
+    <string name="delete">Удалить</string>
+    <string name="choose_photo">Выберите фото</string>
 </resources>

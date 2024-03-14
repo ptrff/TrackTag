@@ -18,12 +18,12 @@
         <ImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
-            android:layout_height="194dp"
+            android:layout_height="256dp"
             android:contentDescription="@string/photo"
             android:scaleType="centerCrop"
             tools:srcCompat="@drawable/ic_map" />
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -31,7 +31,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
                     android:id="@+id/author"
@@ -56,16 +60,17 @@
                 style="?attr/materialIconButtonOutlinedStyle"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_alignParentEnd="true"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="14dp"
+                android:layout_marginEnd="16dp"
                 android:background="@android:color/transparent"
                 android:checkable="true"
                 android:contentDescription="@string/subscription"
                 app:icon="@drawable/sl_notification"
-                app:iconSize="24dp" />
+                app:iconSize="24dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

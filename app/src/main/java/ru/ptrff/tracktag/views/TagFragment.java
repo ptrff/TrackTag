@@ -72,9 +72,7 @@ public class TagFragment extends Fragment {
             if (tag.getUser() != null) {
                 binding.tag.author.setText(tag.getUser().getUsername());
             } else {
-                binding.tag.author.setText(
-                        R.string.guest
-                );
+                binding.tag.author.setText(R.string.guest);
             }
 
             // description
@@ -96,7 +94,7 @@ public class TagFragment extends Fragment {
             //focus
             binding.tag.focusButton.setOnClickListener(v -> {
                 if (tagEvents != null) {
-                    tagEvents.onFocusClick(tag);
+                    tagEvents.focusOnTag(tag);
                 }
             });
 

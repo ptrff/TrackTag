@@ -26,10 +26,6 @@ public class TagLocalRepository {
         return tagDao.getAllLocalTags();
     }
 
-    public Completable insertOrReplaceTags(List<Tag> tags) {
-        return tagDao.insertOrReplaceTags(tags);
-    }
-
     @SuppressLint("CheckResult")
     public Completable insertOrReplaceOrDelete(List<Tag> newTags) {
         getAllLocalTags()
