@@ -60,7 +60,7 @@ public class HomeFragment extends Fragment {
         );
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        if(!viewModel.isInitiated()) {
+        if (!viewModel.isInitiated()) {
             viewModel.setLocalRepo(new TagLocalRepository(requireContext()));
             viewModel.addNetworkConnectionListener(
                     Objects.requireNonNull(getSystemService(requireContext(), ConnectivityManager.class))
@@ -87,6 +87,7 @@ public class HomeFragment extends Fragment {
         initObservers();
         initClickListeners();
         checkSearchFilters();
+        setBottomSheetPeekHeight();
     }
 
     private void initObservers() {
@@ -113,7 +114,7 @@ public class HomeFragment extends Fragment {
                 applySearchFilters();
             });
             dialog.setOnShowListener(dialog1 -> {
-                if(binding.searchField.hasFocus()) {
+                if (binding.searchField.hasFocus()) {
                     binding.searchField.clearFocus();
                 }
             });
@@ -135,7 +136,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tagsAdapter.filter(s, getResources());
+                tagsAdapter.filter(s);
             }
         });
 
@@ -180,8 +181,8 @@ public class HomeFragment extends Fragment {
         imm.hideSoftInputFromWindow(binding.searchField.getWindowToken(), 0);
     }
 
-    private void applySearchFilters(){
-        tagsAdapter.filter(binding.searchField.getText(), getResources());
+    private void applySearchFilters() {
+        tagsAdapter.filter(binding.searchField.getText());
     }
 
     private void checkSearchFilters() {
@@ -259,5 +260,17 @@ public class HomeFragment extends Fragment {
 
     public void scrollUp() {
         binding.tagsList.fling(0, binding.tagsList.getMaxFlingVelocity() * -1);
+    }
+
+    private void setBottomSheetPeekHeight() {
+        binding.searchField.post(() -> {
+            mainFragmentCallback.setBottomPeekHeight(
+                    binding.searchField.getMeasuredHeight()
+                            + binding.dragView.getMeasuredHeight()
+                            + ((ViewGroup.MarginLayoutParams) binding.dragView.getLayoutParams()).topMargin
+                            + ((ViewGroup.MarginLayoutParams) binding.dragView.getLayoutParams()).bottomMargin
+                            + ((ViewGroup.MarginLayoutParams) binding.searchLayout.getLayoutParams()).bottomMargin
+            );
+        });
     }
 }

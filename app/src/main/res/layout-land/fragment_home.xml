@@ -10,6 +10,7 @@
     tools:context=".views.HomeFragment">
 
     <View
+        android:id="@+id/drag_view"
         android:layout_width="32dp"
         android:layout_height="6dp"
         android:layout_gravity="center_horizontal"

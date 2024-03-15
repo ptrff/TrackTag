@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     private InputListener mapClickListener;
     private float[] clickPoint;
     private Point targetPoint;
+    private CameraPosition cameraPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +94,21 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         } else {
             bottomState = savedInstanceState.getInt("bottomState", 1);
             selectedOption = OptionActions.values()[savedInstanceState.getInt("selectedOption")];
+
+            //cameraPosition
+            Point cameraPoint = new Point(
+                    savedInstanceState.getDouble("cameraPositionPointLat"),
+                    savedInstanceState.getDouble("cameraPositionPointLon")
+            );
+            cameraPosition = new CameraPosition(
+                    cameraPoint,
+                    savedInstanceState.getFloat("cameraPositionZoom"),
+                    savedInstanceState.getFloat("cameraPositionAzimuth"),
+                    savedInstanceState.getFloat("cameraPositionTilt")
+            );
         }
 
-        // Init binding and set content view
+        // Init view binding and set content view
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -116,6 +129,11 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             map.setNightModeEnabled(true);
+        }
+
+        // Restore cameraPosition
+        if (cameraPosition != null) {
+            map.move(cameraPosition);
         }
     }
 
@@ -211,6 +229,11 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             }
             return true;
         });
+    }
+
+    @Override
+    public void setBottomPeekHeight(int height) {
+        bottomSheetBehavior.setPeekHeight(height);
     }
 
     @Override
@@ -481,6 +504,14 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
         outState.putInt("bottomState", bottomState);
         outState.putInt("selectedOption", selectedOption.ordinal());
+
+        //cameraPosition
+        cameraPosition = map.getCameraPosition();
+        outState.putFloat("cameraPositionAzimuth", cameraPosition.getAzimuth());
+        outState.putFloat("cameraPositionTilt", cameraPosition.getTilt());
+        outState.putFloat("cameraPositionZoom", cameraPosition.getZoom());
+        outState.putDouble("cameraPositionPointLat", cameraPosition.getTarget().getLatitude());
+        outState.putDouble("cameraPositionPointLon", cameraPosition.getTarget().getLongitude());
     }
 
     @Override

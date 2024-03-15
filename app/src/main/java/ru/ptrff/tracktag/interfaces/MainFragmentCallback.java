@@ -10,5 +10,6 @@ public interface MainFragmentCallback extends MoreFragmentCallback {
     void focusOnTag(Tag tag);
     void onSubscribeClick(Tag tag);
     void setBottomSheetState(int state);
+    void setBottomPeekHeight(int height);
     void performAction(OptionActions action);
 }

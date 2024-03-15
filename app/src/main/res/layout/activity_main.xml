@@ -51,7 +51,6 @@
             android:nestedScrollingEnabled="false"
             android:translationZ="1000dp"
             app:behavior_hideable="false"
-            app:behavior_peekHeight="75dp"
             app:defaultNavHost="true"
             app:layout_behavior="@string/bottom_sheet_behavior"
             app:navGraph="@navigation/nav_graph" />

@@ -2,6 +2,7 @@ package ru.ptrff.tracktag.views;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,20 +53,21 @@ public class TagFragment extends Fragment {
                         .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                hidePicture();
+                                setImageSize();
                                 Log.d(this.getClass().getCanonicalName(), "No image: " + tag.getImage());
                                 return false;
                             }
 
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                binding.tag.image.setVisibility(View.VISIBLE);
                                 return false;
                             }
                         })
                         .transition(withCrossFade())
                         .into(binding.tag.image);
             } else {
-                hidePicture();
+                setImageSize();
             }
 
             // author
@@ -105,9 +107,14 @@ public class TagFragment extends Fragment {
         });
     }
 
-    private void hidePicture() {
+    private void setImageSize() {
         binding.tag.image.setVisibility(View.INVISIBLE);
-        binding.tag.image.getLayoutParams().height = binding.backButton.getMeasuredHeight();
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.tag.image.getLayoutParams().width = binding.backButton.getMeasuredWidth()*5/2;
+        }else{
+            binding.tag.image.getLayoutParams().height = binding.backButton.getMeasuredHeight();
+        }
         binding.tag.image.requestLayout();
     }
 }
