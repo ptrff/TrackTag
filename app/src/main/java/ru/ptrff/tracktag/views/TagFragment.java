@@ -46,21 +46,23 @@ public class TagFragment extends Fragment {
 
     public void setTag(Tag tag) {
         binding.tag.getRoot().post(() -> {
+
             // Picture
-            if (tag.getImage() != null && !tag.getImage().isEmpty() && !tag.getImage().startsWith("/storage/")) {
+            if (tag.getImage() != null && !tag.getImage().isEmpty()) {
+                binding.tag.image.setVisibility(View.VISIBLE);
                 Glide.with(binding.tag.image.getContext())
-                        .load(tag.getImage())
+                        .load("https://maps.rtuitlab.dev"+tag.getImage())
                         .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                                 setImageSize();
                                 Log.d(this.getClass().getCanonicalName(), "No image: " + tag.getImage());
+                                binding.tag.image.setVisibility(View.GONE);
                                 return false;
                             }
 
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                binding.tag.image.setVisibility(View.VISIBLE);
                                 return false;
                             }
                         })
@@ -69,6 +71,7 @@ public class TagFragment extends Fragment {
             } else {
                 setImageSize();
             }
+
 
             // author
             if (tag.getUser() != null) {

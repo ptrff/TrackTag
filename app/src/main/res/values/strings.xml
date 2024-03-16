@@ -55,4 +55,10 @@
     <string name="done">Готово</string>
     <string name="delete">Удалить</string>
     <string name="choose_photo">Выберите фото</string>
+    <string name="allow_notifications_first">Сначала разрешите уведомления</string>
+    <string name="something_new">Что-то новенькое!</string>
+    <string name="user_posted_a_new_tag">Пользователь %1$s опубликовал новый тэг!</string>
+    <string name="select_image_source">Выберите источник изображения</string>
+    <string name="take_photo">Сделать фото</string>
+    <string name="choose_from_gallery">Выбрать из галереи</string>
 </resources>

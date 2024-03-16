@@ -3,9 +3,13 @@ package ru.ptrff.tracktag.data;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -22,6 +26,10 @@ public class UserData {
     private String userName;
     private String accessToken;
     private final HashSet<String> subs = new HashSet<>();
+    private HashMap<String, String> lastTags = new HashMap<>();
+
+    private boolean isNotificationsAllowed;
+    private int notificationsInterval; // 1h by default
 
     private UserData() {
     }
@@ -41,6 +49,15 @@ public class UserData {
         userName = preferences.getString("userName", "");
         accessToken = preferences.getString("accessToken", "");
         subs.addAll(preferences.getStringSet("subs", new HashSet<>()));
+        isNotificationsAllowed = preferences.getBoolean("isNotificationsAllowed", false);
+
+        notificationsInterval = preferences.getInt("notificationsInterval", 3600);
+
+        Gson gson = new Gson();
+        String hashMapString = preferences.getString("lastTags", "{}");
+        Type type = new TypeToken<HashMap<String, String>>() {
+        }.getType();
+        lastTags = gson.fromJson(hashMapString, type);
     }
 
     public void logout() {
@@ -50,6 +67,28 @@ public class UserData {
         userName = "";
         accessToken = "";
         subs.clear();
+        lastTags.clear();
+        isNotificationsAllowed = false;
+        notificationsInterval = 3600;
+    }
+
+    public int getNotificationsInterval() {
+        return notificationsInterval;
+    }
+
+    public void setNotificationsInterval(int notificationsInterval) {
+        this.notificationsInterval = notificationsInterval;
+        editor.putInt("notificationsInterval", notificationsInterval).commit();
+    }
+
+    public void setLastTagId(User user, String tagId) {
+        Gson gson = new Gson();
+        lastTags.put(user.getUsername(), tagId);
+        editor.putString("lastTags", gson.toJson(lastTags)).commit();
+    }
+
+    public String getLastTagId(User user) {
+        return lastTags.get(user.getUsername());
     }
 
     public void addSub(User user) {
@@ -116,6 +155,15 @@ public class UserData {
 
     public String getAccessToken() {
         return accessToken;
+    }
+
+    public boolean isNotificationsAllowed() {
+        return isNotificationsAllowed;
+    }
+
+    public void setNotificationsAllowed(boolean notificationsAllowed) {
+        isNotificationsAllowed = notificationsAllowed;
+        editor.putBoolean("isNotificationsAllowed", notificationsAllowed).commit();
     }
 }
 

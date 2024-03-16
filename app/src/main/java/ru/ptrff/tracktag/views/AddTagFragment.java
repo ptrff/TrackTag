@@ -1,31 +1,35 @@
 package ru.ptrff.tracktag.views;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
-import java.io.ByteArrayOutputStream;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import ru.ptrff.tracktag.R;
+import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.FragmentAddTagBinding;
+import ru.ptrff.tracktag.models.Tag;
+import ru.ptrff.tracktag.viewmodels.AddTagViewModel;
 
 public class AddTagFragment extends Fragment {
 
-    private ActivityResultLauncher<Intent> activityResultLauncher;
     private FragmentAddTagBinding binding;
+    private AddTagViewModel viewModel;
 
     public AddTagFragment() {
     }
@@ -34,12 +38,42 @@ public class AddTagFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentAddTagBinding.inflate(inflater);
+
+        viewModel = new ViewModelProvider(this).get(AddTagViewModel.class);
+
+        if (getArguments() != null) {
+            double latitude = getArguments().getDouble("latitude");
+            double longitude = getArguments().getDouble("longitude");
+            viewModel.setPoint(latitude, longitude);
+        }
+
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        initViews();
+        initObservers();
+    }
+
+    private void initObservers() {
+        viewModel.getSuccess().observe(getViewLifecycleOwner(), success -> {
+            Toast.makeText(requireContext(), success + "  a", Toast.LENGTH_SHORT).show();
+            if (success) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+    }
+
+    private void initViews() {
+        // restore data after recreation
+        if (viewModel.getImageUri() != null) {
+            previewImage(viewModel.getImageUri());
+        }
+        binding.descriptionField.setText(viewModel.getDescription());
+
 
         UserData data = UserData.getInstance();
         if (data.isLoggedIn()) {
@@ -48,43 +82,89 @@ public class AddTagFragment extends Fragment {
             binding.author.setText(R.string.guest);
         }
 
-
-        getResult();
         binding.image.setOnClickListener(v -> {
-            getImage();
+            showImageSourceDialog();
         });
-    }
 
-    private void getImage() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Intent chooser = Intent.createChooser(intent, getString(R.string.choose_photo));
-        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
-        activityResultLauncher.launch(chooser);
-    }
+        binding.descriptionField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-    private void getResult() {
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                Intent data = result.getData();
-                if (data != null) {
-                    if (data.getData() != null) { //from galery
-                        Uri imageUri = data.getData();
-                        // TODO: upload and get url
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-                    } else if (!data.getExtras().isEmpty()) { //from camera
-                        Bitmap photo = (Bitmap) data.getExtras().get("data");
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        photo.compress(Bitmap.CompressFormat.JPEG, 90, stream);
-                        byte[] byteArray = stream.toByteArray();
-                        photo.recycle();
-
-                        // TODO: upload and get url
-                    }
-                }
+            @Override
+            public void afterTextChanged(Editable s) {
+                viewModel.setDescription(s.toString());
             }
         });
+
+        binding.doneButton.setOnClickListener(v -> {
+            if (binding.descriptionField.getText().length() < 1) {
+                Toast.makeText(requireContext(), R.string.type_description, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            viewModel.createTag(
+                    requireContext().getContentResolver(),
+                    viewModel.getLatitude(),
+                    viewModel.getLongitude(),
+                    binding.descriptionField.getText().toString()
+            );
+        });
+    }
+
+    private void showImageSourceDialog() {
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(requireContext());
+        dialog.setTitle(R.string.select_image_source);
+        dialog.setItems(new String[]{getString(R.string.take_photo), getString(R.string.choose_from_gallery)}, (d, which) -> {
+            switch (which) {
+                case 0: // from camera
+                    captureImage();
+                    break;
+                case 1: // from gallery
+                    pickImageLauncher.launch("image/*");
+                    break;
+            }
+        });
+        dialog.show();
+    }
+
+    private void captureImage() {
+        viewModel.createImageUri(requireContext().getContentResolver());
+        if (viewModel.getImageUri() != null) {
+            takePictureLauncher.launch(viewModel.getImageUri());
+        } else {
+            Log.e(getClass().getCanonicalName(), "Error creating image URI");
+        }
+    }
+
+    private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            result -> {
+                if (result) {
+                    previewImage(viewModel.getImageUri());
+                } else {
+                    viewModel.setImageUri(null);
+                }
+            }
+    );
+
+    private final ActivityResultLauncher<String> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    viewModel.setImageUri(uri);
+                    previewImage(uri);
+                }
+            }
+    );
+
+    private void previewImage(Uri imageUri) {
+        if (imageUri != null) {
+            binding.image.setImageURI(imageUri);
+        }
     }
 
 }

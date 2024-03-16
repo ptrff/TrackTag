@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -18,6 +19,7 @@ import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.data.local.TagLocalRepository;
 import ru.ptrff.tracktag.models.Option;
 import ru.ptrff.tracktag.models.Tag;
+import ru.ptrff.tracktag.models.User;
 
 public class HomeViewModel extends ViewModel {
     private MapsRepository repo;
@@ -48,6 +50,7 @@ public class HomeViewModel extends ViewModel {
                             Collections.reverse(receivedTags);
                             tags.postValue(receivedTags);
                             saveLocalData(receivedTags);
+                            updateLastTagsIDs(receivedTags);
                         },
                         throwable -> {
                             getLocalData();
@@ -84,6 +87,26 @@ public class HomeViewModel extends ViewModel {
                 }, throwable -> {
                     Log.e(getClass().getCanonicalName(), throwable.toString());
                 });
+    }
+
+    public void updateLastTagsIDs(List<Tag> tags){
+        UserData data = UserData.getInstance();
+        if(tags != null && !tags.isEmpty()){
+            for (User sub : data.getSubs()) {
+                Log.d(getClass().getCanonicalName(), "updating last tag id for " + sub.getUsername());
+                for (Tag tag : tags) {
+                    if (tag.getUser() != null && tag.getUser().getUsername().equals(sub.getUsername())) {
+                        Log.d(getClass().getCanonicalName(), "last tag set to "+ tag.getId());
+                        data.setLastTagId(sub, tag.getId());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void updateLastTagsIDs(){
+        updateLastTagsIDs(tags.getValue());
     }
 
     public void addNetworkConnectionListener(ConnectivityManager connectivityManager) {

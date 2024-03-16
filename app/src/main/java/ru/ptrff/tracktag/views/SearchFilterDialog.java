@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.chip.Chip;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import ru.ptrff.tracktag.R;

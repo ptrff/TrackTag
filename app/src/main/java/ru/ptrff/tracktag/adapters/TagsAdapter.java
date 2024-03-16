@@ -45,7 +45,9 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
 
     public interface TagEvents {
         void onLikeClick(Tag tag);
+
         void onSubscribeClick(Tag tag);
+
         void focusOnTag(Tag tag);
     }
 
@@ -74,9 +76,10 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
         Tag tag = getItem(position);
 
         // Picture
-        if (tag.getImage() != null && !tag.getImage().isEmpty() && !tag.getImage().startsWith("/storage/")) {
+        if (tag.getImage() != null && !tag.getImage().isEmpty()) {
+            holder.binding.image.setVisibility(View.VISIBLE);
             Glide.with(holder.binding.image.getContext())
-                    .load(tag.getImage())
+                    .load("https://maps.rtuitlab.dev" + tag.getImage())
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -87,12 +90,13 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
 
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            holder.binding.image.setVisibility(View.VISIBLE);
                             return false;
                         }
                     })
                     .transition(withCrossFade())
                     .into(holder.binding.image);
+        }else{
+            holder.binding.image.setVisibility(View.GONE);
         }
 
         // author
@@ -101,11 +105,16 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
             holder.binding.subButton.setOnClickListener(v -> {
                 if (tagEvents != null) {
                     tagEvents.onSubscribeClick(tag);
+                    if (!UserData.getInstance().isNotificationsAllowed()) {
+                        holder.binding.subButton.setChecked(false);
+                    }
                 }
             });
 
-            holder.binding.subButton.setChecked(UserData.getInstance().isSubscribed(tag.getUser()));
-            holder.binding.subButton.setVisibility(View.VISIBLE);
+            if (!UserData.getInstance().getUserName().equals(tag.getUser().getUsername())) {
+                holder.binding.subButton.setChecked(UserData.getInstance().isSubscribed(tag.getUser()));
+                holder.binding.subButton.setVisibility(View.VISIBLE);
+            }
         } else {
             holder.binding.author.setText(R.string.guest);
             holder.binding.subButton.setVisibility(View.GONE);
@@ -201,7 +210,6 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
     private boolean isImagePresent(String imageUrl) {
         return imageUrl != null && !imageUrl.startsWith("/storage/");
     }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ItemTagBinding binding;

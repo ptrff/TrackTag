@@ -3,19 +3,22 @@ package ru.ptrff.tracktag.api;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;
+import okhttp3.MultipartBody;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
-import ru.ptrff.tracktag.api.dto.LoginRequest;
+import retrofit2.http.Part;
+import retrofit2.http.Query;
 import ru.ptrff.tracktag.api.dto.LoginResponse;
 import ru.ptrff.tracktag.api.dto.RegisterRequest;
 import ru.ptrff.tracktag.api.dto.RegisterResponse;
 import ru.ptrff.tracktag.models.Tag;
 
-public interface ApiService {
+public interface MapsApi {
     @GET("api/tags/")
     Single<List<Tag>> getAllTags();
 
@@ -26,4 +29,22 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("api/auth/jwt/login")
     Single<LoginResponse> login(@Field(value = "username") String username, @Field(value = "password") String password);
+
+    @Multipart
+    @POST("api/tags/")
+    Single<Tag> addTag(
+            @Part("latitude")  double latitude,
+            @Part("longitude")  double longitude,
+            @Part("description") String description,
+            @Part MultipartBody.Part image
+    );
+
+    @FormUrlEncoded
+    @POST("api/tags/")
+    Single<Tag> addTag(
+            @Field("latitude") double latitude,
+            @Field("longitude") double longitude,
+            @Field("description") String description
+    );
+
 }

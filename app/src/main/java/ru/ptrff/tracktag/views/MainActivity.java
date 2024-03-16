@@ -1,9 +1,11 @@
 package ru.ptrff.tracktag.views;
 
+import android.Manifest;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -11,6 +13,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,14 +23,20 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.yandex.mapkit.Animation;
@@ -43,6 +52,8 @@ import com.yandex.runtime.image.ImageProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import ru.ptrff.tracktag.BuildConfig;
 import ru.ptrff.tracktag.R;
@@ -53,6 +64,7 @@ import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
 import ru.ptrff.tracktag.models.User;
+import ru.ptrff.tracktag.worker.PostCheckingWorker;
 
 
 public class MainActivity extends AppCompatActivity implements MainFragmentCallback, TagsAdapter.TagEvents {
@@ -118,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         setupBottomSheet();
         initNavController();
         initMapClick();
+
+        // Check worker
+        checkForWorker();
     }
 
     private void initMap() {
@@ -429,7 +444,10 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             if (id == R.id.add) {
                 setTargetPointVisible(false);
                 setBottomSheetState(2);
-                navController.navigate(R.id.action_global_addTagFragment);
+                Bundle bundle = new Bundle();
+                bundle.putDouble("latitude", targetPoint.getLatitude());
+                bundle.putDouble("longitude", targetPoint.getLongitude());
+                navController.navigate(R.id.action_global_addTagFragment, bundle);
             }
             if (id == R.id.zoom_in) {
                 focusOnPoint(targetPoint, map.getCameraPosition().getZoom() + 2);
@@ -521,13 +539,50 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
     @Override
     public void onSubscribeClick(Tag tag) {
-        UserData data = UserData.getInstance();
-        User user = tag.getUser();
-        if (!data.isSubscribed(user)) {
-            data.addSub(user);
-        } else {
-            data.removeSub(user);
+        if (checkForPermission()) {
+            UserData data = UserData.getInstance();
+            User user = tag.getUser();
+            if (!data.isSubscribed(user)) {
+                data.addSub(user);
+            } else {
+                data.removeSub(user);
+            }
         }
+    }
+
+    private void checkForWorker() {
+        WorkManager manager = WorkManager.getInstance(this);
+
+        manager.getWorkInfosByTagLiveData("post_checking").observe(this, workInfos -> {
+            if (workInfos.size()==0 || workInfos.get(0).getState().isFinished()) {
+                manager.enqueueUniquePeriodicWork(
+                        "post_checking",
+                        ExistingPeriodicWorkPolicy.KEEP,
+                        new PeriodicWorkRequest.Builder(PostCheckingWorker.class, 15, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+                                .addTag("post_checking")
+                                .build()
+                        );
+                Log.d(getClass().getCanonicalName(), "worker started");
+            }else{
+                Log.d(getClass().getCanonicalName(), "worker working");
+            }
+        });
+    }
+
+    private boolean checkForPermission() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            UserData.getInstance().setNotificationsAllowed(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestPermissions(
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1
+                );
+            }
+            Toast.makeText(this, R.string.allow_notifications_first, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        UserData.getInstance().setNotificationsAllowed(true);
+        return true;
     }
 
     private void initMapKit() {

@@ -28,10 +28,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Objects;
 
-import io.reactivex.rxjava3.core.Completable;
-import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
+import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.data.SearchFilter;
 import ru.ptrff.tracktag.data.local.TagLocalRepository;
 import ru.ptrff.tracktag.databinding.FragmentHomeBinding;
@@ -95,6 +94,7 @@ public class HomeFragment extends Fragment {
             tagsAdapter.setAllTags(tags);
             mainFragmentCallback.onTagsLoaded(tags);
             applySearchFilters();
+            scrollUp(false);
         });
 
         viewModel.getOptions().observe(getViewLifecycleOwner(), options -> {
@@ -104,7 +104,7 @@ public class HomeFragment extends Fragment {
 
     private void initClickListeners() {
         binding.upButton.setOnClickListener(v -> {
-            scrollUp();
+            scrollUp(true);
         });
 
         binding.searchLayout.setEndIconOnClickListener(v -> {
@@ -137,6 +137,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 tagsAdapter.filter(s);
+                scrollUp(false);
             }
         });
 
@@ -212,6 +213,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onSubscribeClick(Tag tag) {
+                viewModel.updateLastTagsIDs();
                 mainFragmentCallback.onSubscribeClick(tag);
             }
 
@@ -239,7 +241,13 @@ public class HomeFragment extends Fragment {
 
         binding.optionsList.setLayoutManager(new LinearLayoutManager(requireContext(), optionListOrientation, false));
         optionsAdapter = new OptionsAdapter(requireContext(), viewModel.getOptionsAsList());
-        optionsAdapter.setOptionsEvents(option -> mainFragmentCallback.performAction(option.getAction()));
+        optionsAdapter.setOptionsEvents(option -> {
+            if(option.getAction() == OptionActions.REFRESH){
+                viewModel.getData();
+                return;
+            }
+            mainFragmentCallback.performAction(option.getAction());
+        });
         binding.optionsList.setAdapter(optionsAdapter);
     }
 
@@ -258,8 +266,12 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    public void scrollUp() {
-        binding.tagsList.fling(0, binding.tagsList.getMaxFlingVelocity() * -1);
+    public void scrollUp(boolean smooth) {
+        if(smooth) {
+            binding.tagsList.smoothScrollToPosition(0);
+        }else {
+            binding.tagsList.scrollToPosition(0);
+        }
     }
 
     private void setBottomSheetPeekHeight() {

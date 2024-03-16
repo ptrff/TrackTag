@@ -1,26 +1,18 @@
 package ru.ptrff.tracktag.views;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
-import android.app.Activity;
-import android.content.Context;
-import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
 import ru.ptrff.tracktag.R;
-import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.FragmentAuthBinding;
 import ru.ptrff.tracktag.viewmodels.AuthViewModel;
 
@@ -89,7 +81,7 @@ public class AuthFragment extends Fragment {
 
         viewModel.getLoggedIn().observe(getViewLifecycleOwner(), loggedIn -> {
             if (loggedIn) {
-                //TODO: navigate to main fragment
+                //TODO: navigate to main fragment and reset mapsrepo
                 getParentFragmentManager().popBackStack();
             }
         });

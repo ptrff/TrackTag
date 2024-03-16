@@ -44,8 +44,7 @@
                     android:background="?attr/colorSurfaceContainerHigh"
                     android:contentDescription="@string/photo"
                     android:scaleType="center"
-                    app:srcCompat="@drawable/ic_add_photo"
-                    app:tint="?attr/colorTertiary" />
+                    app:srcCompat="@drawable/ic_add_photo" />
 
 
                 <TextView
@@ -92,7 +91,7 @@
 
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/focus_button"
+                        android:id="@+id/done_button"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
