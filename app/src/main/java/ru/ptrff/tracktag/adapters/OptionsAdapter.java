@@ -18,16 +18,14 @@ import ru.ptrff.tracktag.models.Option;
 public class OptionsAdapter extends ListAdapter<Option, OptionsAdapter.ViewHolder> {
 
     private final LayoutInflater inflater;
-    private final List<Option> options;
     private OptionEvents optionEvents;
 
     public interface OptionEvents {
         void onOptionClick(Option option);
     }
 
-    public OptionsAdapter(Context context, List<Option> options) {
+    public OptionsAdapter(Context context) {
         super(new OptionsDiffCallback());
-        this.options = options;
         this.inflater = LayoutInflater.from(context);
     }
 
@@ -44,7 +42,7 @@ public class OptionsAdapter extends ListAdapter<Option, OptionsAdapter.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Option option = options.get(position);
+        Option option = getItem(position);
         holder.binding.label.setText(option.getLabel());
         holder.binding.icon.setImageDrawable(
                 AppCompatResources.getDrawable(holder.binding.icon.getContext(), option.getIcon())
@@ -54,11 +52,6 @@ public class OptionsAdapter extends ListAdapter<Option, OptionsAdapter.ViewHolde
                 optionEvents.onOptionClick(option);
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return options.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

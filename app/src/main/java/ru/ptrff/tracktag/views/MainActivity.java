@@ -421,6 +421,10 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 selectedOption = OptionActions.SUBS;
                 binding.bottomNavigationView.setSelectedItemId(R.id.more);
                 break;
+            case LIST:
+                selectedOption = OptionActions.LIST;
+                binding.bottomNavigationView.setSelectedItemId(R.id.home);
+                break;
         }
     }
 

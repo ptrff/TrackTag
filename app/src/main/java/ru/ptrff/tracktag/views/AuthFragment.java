@@ -13,7 +13,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import ru.ptrff.tracktag.R;
+import ru.ptrff.tracktag.api.MapsRepository;
+import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.databinding.FragmentAuthBinding;
+import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.viewmodels.AuthViewModel;
 
 public class AuthFragment extends Fragment {
@@ -81,8 +84,9 @@ public class AuthFragment extends Fragment {
 
         viewModel.getLoggedIn().observe(getViewLifecycleOwner(), loggedIn -> {
             if (loggedIn) {
-                //TODO: navigate to main fragment and reset mapsrepo
-                getParentFragmentManager().popBackStack();
+                new MapsRepository(); //init oauth2
+                ((MainFragmentCallback) requireActivity()).performAction(OptionActions.LIST);
+                Toast.makeText(requireContext(), R.string.you_have_logged_in, Toast.LENGTH_SHORT).show();
             }
         });
     }

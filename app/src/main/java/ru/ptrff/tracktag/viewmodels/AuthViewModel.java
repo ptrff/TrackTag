@@ -31,11 +31,18 @@ public class AuthViewModel extends ViewModel {
     @SuppressLint("CheckResult")
     public void register(String login, String password) {
         repo
-                .register(new RegisterRequest(login, password))
+                .register(new RegisterRequest(
+                        login.replace(" ", ""),
+                        password.replace(" ", "")
+                ))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        registerResponse -> handleRegisterResponse(registerResponse, login, password),
+                        registerResponse -> handleRegisterResponse(
+                                registerResponse,
+                                login.replace(" ", ""),
+                                password.replace(" ", "")
+                        ),
                         throwable -> Log.e(getClass().getCanonicalName(), throwable.toString())
                 );
     }
@@ -43,11 +50,17 @@ public class AuthViewModel extends ViewModel {
     @SuppressLint("CheckResult")
     public void login(String login, String password) {
         repo
-                .login(new LoginRequest(login, password))
+                .login(new LoginRequest(
+                        login.replace(" ", ""),
+                        password.replace(" ", "")
+                ))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        loginResponse -> handleLoginResponse(loginResponse, login),
+                        loginResponse -> handleLoginResponse(
+                                loginResponse,
+                                login.replace(" ", "")
+                        ),
                         throwable -> Log.e(getClass().getCanonicalName(), throwable.toString())
                 );
     }

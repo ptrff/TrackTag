@@ -6,6 +6,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,9 +17,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.OptionsListAdapter;
+import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.data.Options;
 import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.FragmentMoreBinding;
+import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.interfaces.MoreFragmentCallback;
 
 public class MoreFragment extends Fragment {
@@ -61,7 +64,8 @@ public class MoreFragment extends Fragment {
                     .setPositiveButton(R.string.logout, (dialog, which) -> {
                         dialog.dismiss();
                         UserData.getInstance().logout();
-                        //TODO go to main screen and reset
+                        Toast.makeText(requireContext(),  R.string.you_have_logged_out, Toast.LENGTH_SHORT).show();
+                        ((MainFragmentCallback) requireActivity()).performAction(OptionActions.LIST);
                     })
                     .setNegativeButton(R.string.stay, (dialog, which) -> {
                         dialog.dismiss();

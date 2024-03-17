@@ -30,13 +30,14 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         repo = new MapsRepository();
-
-        // Инициализация данных для списков
-        options.setValue(UserData.getInstance().isLoggedIn() ? Options.user : Options.guest);
     }
 
     public void setLocalRepo(TagLocalRepository localRepo) {
         this.localRepo = localRepo;
+    }
+
+    public void initOptions() {
+        options.postValue(UserData.getInstance().isLoggedIn() ? Options.user : Options.guest);
     }
 
     @SuppressLint("CheckResult")
@@ -89,14 +90,14 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    public void updateLastTagsIDs(List<Tag> tags){
+    public void updateLastTagsIDs(List<Tag> tags) {
         UserData data = UserData.getInstance();
-        if(tags != null && !tags.isEmpty()){
+        if (tags != null && !tags.isEmpty()) {
             for (User sub : data.getSubs()) {
                 Log.d(getClass().getCanonicalName(), "updating last tag id for " + sub.getUsername());
                 for (Tag tag : tags) {
                     if (tag.getUser() != null && tag.getUser().getUsername().equals(sub.getUsername())) {
-                        Log.d(getClass().getCanonicalName(), "last tag set to "+ tag.getId());
+                        Log.d(getClass().getCanonicalName(), "last tag set to " + tag.getId());
                         data.setLastTagId(sub, tag.getId());
                         break;
                     }
@@ -105,7 +106,7 @@ public class HomeViewModel extends ViewModel {
         }
     }
 
-    public void updateLastTagsIDs(){
+    public void updateLastTagsIDs() {
         updateLastTagsIDs(tags.getValue());
     }
 

@@ -61,4 +61,6 @@
     <string name="select_image_source">Выберите источник изображения</string>
     <string name="take_photo">Сделать фото</string>
     <string name="choose_from_gallery">Выбрать из галереи</string>
+    <string name="you_have_logged_out">Вы вышли из аккаунта</string>
+    <string name="you_have_logged_in">Вы успешно вошли в аккаунт</string>
 </resources>

@@ -87,6 +87,8 @@ public class HomeFragment extends Fragment {
         initClickListeners();
         checkSearchFilters();
         setBottomSheetPeekHeight();
+        showUpButton(false);
+        setTagsListHeight();
     }
 
     private void initObservers() {
@@ -149,17 +151,37 @@ public class HomeFragment extends Fragment {
                 liftOptions(false);
             }
         });
+
+        binding.refreshButton.setOnClickListener(v -> viewModel.getData());
     }
 
+
+    private boolean liftOptionsAnimation = false;
+    private boolean liftOptionsVisible;
+
     private void liftOptions(boolean lift) {
+        if (liftOptionsAnimation && lift == liftOptionsVisible) return;
+        else if (liftOptionsAnimation) {
+            ViewCompat
+                    .animate(binding.optionsList)
+                    .cancel();
+            ViewCompat
+                    .animate(binding.tagsList)
+                    .cancel();
+        }
+
+
         float destinationY;
         float destinationAlpha;
         if (lift) {
-            destinationY = binding.optionsList.getHeight() * -1;
+            destinationY = (binding.optionsList.getHeight()
+                    + ((ViewGroup.MarginLayoutParams) binding.optionsList.getLayoutParams()).bottomMargin) * -1;
             destinationAlpha = 0;
+            liftOptionsVisible = true;
         } else {
             destinationY = 0;
             destinationAlpha = 1;
+            liftOptionsVisible = false;
         }
 
         ViewCompat
@@ -167,6 +189,7 @@ public class HomeFragment extends Fragment {
                 .translationY(destinationY)
                 .alpha(destinationAlpha)
                 .setDuration(300)
+                .withEndAction(() -> liftOptionsAnimation = false)
                 .start();
 
         ViewCompat
@@ -174,6 +197,38 @@ public class HomeFragment extends Fragment {
                 .translationY(destinationY)
                 .setDuration(300)
                 .start();
+
+        liftOptionsAnimation = true;
+    }
+
+    private boolean upButtonAnimation = false;
+    private boolean upButtonVisible;
+
+    private void showUpButton(boolean visible) {
+        if (upButtonAnimation && visible == upButtonVisible) return;
+        else if (upButtonAnimation) {
+            ViewCompat
+                    .animate(binding.upButton)
+                    .cancel();
+        }
+
+        float destinationX;
+        if (visible) {
+            destinationX = 0;
+            upButtonVisible = true;
+        } else {
+            destinationX = binding.upButton.getMeasuredWidth()
+                    + ((ViewGroup.MarginLayoutParams) binding.upButton.getLayoutParams()).getMarginEnd();
+            upButtonVisible = false;
+        }
+
+        ViewCompat
+                .animate(binding.upButton)
+                .translationX(destinationX)
+                .setDuration(300)
+                .withEndAction(() -> upButtonAnimation = false)
+                .start();
+        upButtonAnimation = true;
     }
 
     private void hideKeyboard() {
@@ -228,48 +283,32 @@ public class HomeFragment extends Fragment {
         initTagListScrollListener();
 
         // options list
-        int optionListOrientation;
-        int currentOrientation = getResources().getConfiguration().orientation;
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            optionListOrientation = LinearLayoutManager.VERTICAL;
-            ViewCompat.setNestedScrollingEnabled(binding.tagsList, false);
-            ViewCompat.setNestedScrollingEnabled(binding.optionsList, false);
-        } else {
-            optionListOrientation = LinearLayoutManager.HORIZONTAL;
-        }
-
-
-        binding.optionsList.setLayoutManager(new LinearLayoutManager(requireContext(), optionListOrientation, false));
-        optionsAdapter = new OptionsAdapter(requireContext(), viewModel.getOptionsAsList());
-        optionsAdapter.setOptionsEvents(option -> {
-            if(option.getAction() == OptionActions.REFRESH){
-                viewModel.getData();
-                return;
-            }
-            mainFragmentCallback.performAction(option.getAction());
-        });
+        binding.optionsList.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        optionsAdapter = new OptionsAdapter(requireContext());
+        optionsAdapter.setOptionsEvents(option -> mainFragmentCallback.performAction(option.getAction()));
         binding.optionsList.setAdapter(optionsAdapter);
+        viewModel.initOptions();
     }
 
     private void initTagListScrollListener() {
         binding.tagsList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (binding.upButton.getVisibility() == View.GONE
-                        && tagsListLayoutManager.findFirstVisibleItemPosition() != 0) {
-                    binding.upButton.setVisibility(View.VISIBLE);
-                } else if (binding.upButton.getVisibility() == View.VISIBLE
-                        && tagsListLayoutManager.findFirstVisibleItemPosition() == 0) {
-                    binding.upButton.setVisibility(View.GONE);
+                if (tagsListLayoutManager.findFirstVisibleItemPosition() != 0) {
+                    showUpButton(true);
+                } else if (tagsListLayoutManager.findFirstVisibleItemPosition() == 0) {
+                    showUpButton(false);
                 }
+
+                liftOptions(dy > 0  || binding.searchField.hasFocus());
             }
         });
     }
 
     public void scrollUp(boolean smooth) {
-        if(smooth) {
+        if (smooth) {
             binding.tagsList.smoothScrollToPosition(0);
-        }else {
+        } else {
             binding.tagsList.scrollToPosition(0);
         }
     }
@@ -283,6 +322,14 @@ public class HomeFragment extends Fragment {
                             + ((ViewGroup.MarginLayoutParams) binding.dragView.getLayoutParams()).bottomMargin
                             + ((ViewGroup.MarginLayoutParams) binding.searchLayout.getLayoutParams()).bottomMargin
             );
+        });
+    }
+
+    private void setTagsListHeight() {
+        binding.tagsList.post(() -> {
+            binding.tagsList.getLayoutParams().height = binding.tagsList.getMeasuredHeight()
+                    + ((ViewGroup.MarginLayoutParams) binding.optionsList.getLayoutParams()).bottomMargin
+                    + binding.optionsList.getMeasuredHeight();
         });
     }
 }

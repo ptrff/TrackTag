@@ -5,6 +5,5 @@ public enum OptionActions {
     AUTH,
     SUBS,
     SETTINGS,
-    ABOUT,
-    REFRESH
+    ABOUT
 }
