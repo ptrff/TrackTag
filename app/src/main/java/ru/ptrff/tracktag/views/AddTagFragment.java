@@ -20,10 +20,10 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import ru.ptrff.tracktag.R;
-import ru.ptrff.tracktag.adapters.TagsAdapter;
+import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.FragmentAddTagBinding;
-import ru.ptrff.tracktag.models.Tag;
+import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.viewmodels.AddTagViewModel;
 
 public class AddTagFragment extends Fragment {
@@ -60,9 +60,10 @@ public class AddTagFragment extends Fragment {
 
     private void initObservers() {
         viewModel.getSuccess().observe(getViewLifecycleOwner(), success -> {
-            Toast.makeText(requireContext(), success + "  a", Toast.LENGTH_SHORT).show();
             if (success) {
-                getParentFragmentManager().popBackStack();
+                Toast.makeText(requireContext(), R.string.tag_created, Toast.LENGTH_SHORT).show();
+                ((MainFragmentCallback) requireActivity()).performAction(OptionActions.LIST);
+                // TODO reload list
             }
         });
     }

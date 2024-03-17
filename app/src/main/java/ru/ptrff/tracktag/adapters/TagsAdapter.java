@@ -44,9 +44,13 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
     private List<Tag> allTags;
 
     public interface TagEvents {
-        void onLikeClick(Tag tag);
+        void onLikeClick(Tag tag, boolean like);
 
         void onSubscribeClick(Tag tag);
+
+        void onDeleteClick(Tag tag);
+
+        void openTag(Tag tag);
 
         void focusOnTag(Tag tag);
     }
@@ -75,6 +79,13 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Tag tag = getItem(position);
 
+        // background
+        holder.binding.background.setOnClickListener(v -> {
+            if (tagEvents != null) {
+                tagEvents.openTag(tag);
+            }
+        });
+
         // Picture
         if (tag.getImage() != null && !tag.getImage().isEmpty()) {
             holder.binding.image.setVisibility(View.VISIBLE);
@@ -95,48 +106,62 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
                     })
                     .transition(withCrossFade())
                     .into(holder.binding.image);
-        }else{
+        } else {
             holder.binding.image.setVisibility(View.GONE);
         }
 
         // author
         if (tag.getUser() != null) {
             holder.binding.author.setText(tag.getUser().getUsername());
-            holder.binding.subButton.setOnClickListener(v -> {
-                if (tagEvents != null) {
-                    tagEvents.onSubscribeClick(tag);
-                    if (!UserData.getInstance().isNotificationsAllowed()) {
-                        holder.binding.subButton.setChecked(false);
-                    }
-                }
-            });
-
-            if (!UserData.getInstance().getUserName().equals(tag.getUser().getUsername())) {
-                holder.binding.subButton.setChecked(UserData.getInstance().isSubscribed(tag.getUser()));
-                holder.binding.subButton.setVisibility(View.VISIBLE);
-            }
         } else {
             holder.binding.author.setText(R.string.guest);
-            holder.binding.subButton.setVisibility(View.GONE);
         }
 
+        // options
+        if (tag.getUser() != null) {
+            holder.binding.optionsButton.setVisibility(View.VISIBLE);
+            if (UserData.getInstance().isLoggedIn()
+                    && UserData.getInstance().getUserName().equals(tag.getUser().getUsername())) {
+                holder.binding.optionsButton.setCheckable(false);
+                holder.binding.optionsButton.setIconResource(R.drawable.ic_delete);
+                holder.binding.optionsButton.setOnClickListener(v -> {
+                    if (tagEvents != null) {
+                        tagEvents.onDeleteClick(tag);
+                    }
+                });
+            } else {
+                holder.binding.optionsButton.setCheckable(true);
+                holder.binding.optionsButton.setIconResource(R.drawable.sl_notification);
+                holder.binding.optionsButton.setChecked(UserData.getInstance().isSubscribed(tag.getUser()));
+                holder.binding.optionsButton.setOnClickListener(v -> {
+                    if (tagEvents != null) {
+                        tagEvents.onSubscribeClick(tag);
+                    }
+                });
+            }
+        } else {
+            holder.binding.optionsButton.setVisibility(View.GONE);
+        }
 
         // description
         holder.binding.description.setText(tag.getDescription());
 
         // like
-        if (tag.getLiked()) holder.binding.likeButton.setChecked(true);
+        holder.binding.likeButton.clearOnCheckedChangeListeners();
+        holder.binding.likeButton.setCheckable(UserData.getInstance().isLoggedIn());
+        holder.binding.likeButton.setChecked(tag.getLiked());
         holder.binding.likeButton.setText("" + tag.getLikes());
         holder.binding.likeButton.addOnCheckedChangeListener((button, isChecked) -> {
             tag.setLiked(isChecked);
             if (isChecked) {
                 tag.setLikes(tag.getLikes() + 1);
+                tagEvents.onLikeClick(tag, true);
             } else {
                 tag.setLikes(tag.getLikes() - 1);
+                tagEvents.onLikeClick(tag, false);
             }
             holder.binding.likeButton.setText("" + tag.getLikes());
         });
-
         //focus
         holder.binding.focusButton.setOnClickListener(v -> {
             if (tagEvents != null) {
@@ -159,9 +184,9 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
                         return false;
                     if (f.getByGuests() != null && f.getByGuests() && tag.getUser() != null)
                         return false;
-                    if (f.getWithImage() != null && f.getWithImage() && !isImagePresent(tag.getImage()))
+                    if (f.getWithImage() != null && f.getWithImage() && tag.getImage() == null)
                         return false;
-                    if (f.getWithoutImage() != null && f.getWithoutImage() && isImagePresent(tag.getImage()))
+                    if (f.getWithoutImage() != null && f.getWithoutImage() && tag.getImage()!=null)
                         return false;
                     if (f.getWithNoLikes() != null && f.getWithNoLikes() && tag.getLikes() != 0)
                         return false;
@@ -205,10 +230,6 @@ public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
                         (@SuppressLint("CheckResult") Throwable throwable) -> {
                             Log.e(this.getClass().getCanonicalName(), "Filter error", throwable);
                         });
-    }
-
-    private boolean isImagePresent(String imageUrl) {
-        return imageUrl != null && !imageUrl.startsWith("/storage/");
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -44,4 +44,16 @@ public class MapsRepository {
     public Single<Tag> addTag(double latitude, double longitude, String description) {
         return mapsApi.addTag(latitude, longitude, description);
     }
+
+    public Single<Void> deleteTag(String tagId) {
+        return mapsApi.deleteTag(tagId);
+    }
+
+    public Single<Tag> likeTag(String tagId) {
+        return mapsApi.likeTag(tagId);
+    }
+
+    public Single<Void> deleteLikeFromTag(String tagId) {
+        return mapsApi.deleteLikeFromTag(tagId);
+    }
 }

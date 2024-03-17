@@ -51,6 +51,8 @@
     <string name="zoom_out">Отдалить</string>
     <string name="subscriptions">Подписки</string>
     <string name="subscription">Подписка</string>
+    <string name="subscribe">Подписаться</string>
+    <string name="unsubscribe">Отписаться</string>
     <string name="type_description">Введите описание</string>
     <string name="done">Готово</string>
     <string name="delete">Удалить</string>
@@ -63,4 +65,5 @@
     <string name="choose_from_gallery">Выбрать из галереи</string>
     <string name="you_have_logged_out">Вы вышли из аккаунта</string>
     <string name="you_have_logged_in">Вы успешно вошли в аккаунт</string>
+    <string name="tag_created">Тэг успешно создан</string>
 </resources>

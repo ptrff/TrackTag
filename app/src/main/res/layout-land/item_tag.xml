@@ -11,34 +11,39 @@
     app:strokeWidth="0dp">
 
     <LinearLayout
+        android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
         android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:layout_weight="8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/photo"
-            android:scaleType="centerCrop"
-            tools:srcCompat="@drawable/ic_map" />
+            android:maxWidth="420dp"
+            android:maxHeight="420dp"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            tools:srcCompat="@drawable/ic_map"
+            tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_weight="5">
+            android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -65,17 +70,16 @@
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/sub_button"
-                    style="?attr/materialIconButtonOutlinedStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@android:color/transparent"
-                    android:checkable="true"
-                    android:contentDescription="@string/subscription"
-                    app:icon="@drawable/sl_notification"
-                    app:iconSize="24dp"
+                    android:id="@+id/options_button"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/options"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_more"
+                    app:iconTint="?attr/colorAccent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -92,10 +96,12 @@
                     style="?attr/materialIconButtonFilledTonalStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:backgroundTint="@android:color/transparent"
                     android:checkable="true"
                     android:contentDescription="@string/like"
                     app:icon="@drawable/sl_like"
                     app:iconPadding="8dp"
+                    app:iconTint="?colorPrimary"
                     app:layout_constraintStart_toStartOf="parent"
                     tools:text="15" />
 

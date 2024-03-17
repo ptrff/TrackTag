@@ -2,24 +2,27 @@ package ru.ptrff.tracktag.views;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,10 +31,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Objects;
 
+import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
 import ru.ptrff.tracktag.adapters.TagsAdapter;
-import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.data.SearchFilter;
+import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.data.local.TagLocalRepository;
 import ru.ptrff.tracktag.databinding.FragmentHomeBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
@@ -259,17 +263,30 @@ public class HomeFragment extends Fragment {
         // tags list
         tagsListLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false);
         binding.tagsList.setLayoutManager(tagsListLayoutManager);
+        binding.tagsList.setNestedScrollingEnabled(false);
         tagsAdapter = new TagsAdapter(requireContext());
         tagsAdapter.setTagEvents(new TagsAdapter.TagEvents() {
             @Override
-            public void onLikeClick(Tag tag) {
-                //TODO
+            public void onDeleteClick(Tag tag) {
+                viewModel.deleteTag(tag);
+            }
+
+            @Override
+            public void onLikeClick(Tag tag, boolean like) {
+                viewModel.likeTag(tag, like);
             }
 
             @Override
             public void onSubscribeClick(Tag tag) {
                 viewModel.updateLastTagsIDs();
-                mainFragmentCallback.onSubscribeClick(tag);
+                if (checkForPermission()) {
+                    viewModel.subscribe(tag);
+                }
+            }
+
+            @Override
+            public void openTag(Tag tag) {
+                mainFragmentCallback.openTag(tag);
             }
 
             @Override
@@ -331,5 +348,21 @@ public class HomeFragment extends Fragment {
                     + ((ViewGroup.MarginLayoutParams) binding.optionsList.getLayoutParams()).bottomMargin
                     + binding.optionsList.getMeasuredHeight();
         });
+    }
+
+    private boolean checkForPermission() {
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            UserData.getInstance().setNotificationsAllowed(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestPermissions(
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1
+                );
+            }
+            Toast.makeText(requireContext(), R.string.allow_notifications_first, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        UserData.getInstance().setNotificationsAllowed(true);
+        return true;
     }
 }

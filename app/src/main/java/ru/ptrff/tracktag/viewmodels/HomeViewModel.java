@@ -106,6 +106,42 @@ public class HomeViewModel extends ViewModel {
         }
     }
 
+    @SuppressLint("CheckResult")
+    public void likeTag(Tag tag, boolean like) {
+        if (like) {
+            repo
+                    .likeTag(tag.getId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((tag1, throwable) -> {});
+        } else {
+            repo
+                    .deleteLikeFromTag(tag.getId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((unused, throwable) -> {});
+        }
+    }
+
+    @SuppressLint("CheckResult")
+    public void deleteTag(Tag tag) {
+        repo
+                .deleteTag(tag.getId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((unused, throwable) -> getData());
+    }
+
+    public void subscribe(Tag tag) {
+        UserData data = UserData.getInstance();
+        User user = tag.getUser();
+        if (!data.isSubscribed(user)) {
+            data.addSub(user);
+        } else {
+            data.removeSub(user);
+        }
+    }
+
     public void updateLastTagsIDs() {
         updateLastTagsIDs(tags.getValue());
     }

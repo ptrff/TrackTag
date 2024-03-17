@@ -1,11 +1,9 @@
 package ru.ptrff.tracktag.views;
 
-import android.Manifest;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -23,18 +21,15 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -52,22 +47,19 @@ import com.yandex.runtime.image.ImageProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import ru.ptrff.tracktag.BuildConfig;
 import ru.ptrff.tracktag.R;
-import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.data.OptionActions;
 import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
-import ru.ptrff.tracktag.models.User;
 import ru.ptrff.tracktag.worker.PostCheckingWorker;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragmentCallback, TagsAdapter.TagEvents {
+public class MainActivity extends AppCompatActivity implements MainFragmentCallback {
 
     private ActivityMainBinding binding;
 
@@ -354,6 +346,9 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
 
     @Override
     public void onTagsLoaded(List<Tag> tags) {
+        map.getMapObjects().clear();
+        placemarkTapListeners.clear();
+
         MapObjectCollection mapObjects = map.getMapObjects();
         ImageProvider imageProvider = ImageProvider.fromResource(this, R.drawable.ic_placeholder);
 
@@ -381,7 +376,8 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         }
     }
 
-    private void openTag(Tag tag) {
+    @Override
+    public void openTag(Tag tag) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("tag", tag);
         setBottomSheetState(2);
@@ -536,24 +532,6 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         outState.putDouble("cameraPositionPointLon", cameraPosition.getTarget().getLongitude());
     }
 
-    @Override
-    public void onLikeClick(Tag tag) {
-        // TODO
-    }
-
-    @Override
-    public void onSubscribeClick(Tag tag) {
-        if (checkForPermission()) {
-            UserData data = UserData.getInstance();
-            User user = tag.getUser();
-            if (!data.isSubscribed(user)) {
-                data.addSub(user);
-            } else {
-                data.removeSub(user);
-            }
-        }
-    }
-
     private void checkForWorker() {
         WorkManager manager = WorkManager.getInstance(this);
 
@@ -571,22 +549,6 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 Log.d(getClass().getCanonicalName(), "worker working");
             }
         });
-    }
-
-    private boolean checkForPermission() {
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            UserData.getInstance().setNotificationsAllowed(false);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestPermissions(
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1
-                );
-            }
-            Toast.makeText(this, R.string.allow_notifications_first, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        UserData.getInstance().setNotificationsAllowed(true);
-        return true;
     }
 
     private void initMapKit() {

@@ -21,14 +21,14 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import ru.ptrff.tracktag.R;
-import ru.ptrff.tracktag.adapters.TagsAdapter;
 import ru.ptrff.tracktag.databinding.FragmentTagBinding;
+import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
 
 public class TagFragment extends Fragment {
 
     private FragmentTagBinding binding;
-    private TagsAdapter.TagEvents tagEvents;
+    private MainFragmentCallback mainFragmentCallback;
 
     public TagFragment() {
     }
@@ -38,7 +38,7 @@ public class TagFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentTagBinding.inflate(inflater);
         Tag tag = getArguments().getParcelable("tag");
-        tagEvents = (TagsAdapter.TagEvents) requireActivity();
+        mainFragmentCallback = (MainFragmentCallback) requireActivity();
         if (tag != null) setTag(tag);
         return binding.getRoot();
     }
@@ -50,7 +50,7 @@ public class TagFragment extends Fragment {
             if (tag.getImage() != null && !tag.getImage().isEmpty()) {
                 binding.tag.image.setVisibility(View.VISIBLE);
                 Glide.with(binding.tag.image.getContext())
-                        .load("https://maps.rtuitlab.dev"+tag.getImage())
+                        .load("https://maps.rtuitlab.dev" + tag.getImage())
                         .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -97,8 +97,8 @@ public class TagFragment extends Fragment {
 
             //focus
             binding.tag.focusButton.setOnClickListener(v -> {
-                if (tagEvents != null) {
-                    tagEvents.focusOnTag(tag);
+                if (mainFragmentCallback != null) {
+                    mainFragmentCallback.focusOnTag(tag);
                 }
             });
 
@@ -113,8 +113,8 @@ public class TagFragment extends Fragment {
         binding.tag.image.setVisibility(View.INVISIBLE);
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            binding.tag.image.getLayoutParams().width = binding.backButton.getMeasuredWidth()*5/2;
-        }else{
+            binding.tag.image.getLayoutParams().width = binding.backButton.getMeasuredWidth() * 5 / 2;
+        } else {
             binding.tag.image.getLayoutParams().height = binding.backButton.getMeasuredHeight();
         }
         binding.tag.image.requestLayout();

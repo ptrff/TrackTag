@@ -5,6 +5,7 @@ import java.util.List;
 import io.reactivex.rxjava3.core.Single;
 import okhttp3.MultipartBody;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -12,7 +13,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
-import retrofit2.http.Query;
+import retrofit2.http.Path;
 import ru.ptrff.tracktag.api.dto.LoginResponse;
 import ru.ptrff.tracktag.api.dto.RegisterRequest;
 import ru.ptrff.tracktag.api.dto.RegisterResponse;
@@ -47,4 +48,12 @@ public interface MapsApi {
             @Field("description") String description
     );
 
+    @DELETE("api/tags/{tag_id}")
+    Single<Void> deleteTag(@Path("tag_id") String tagId);
+
+    @POST("api/tags/{tag_id}/likes")
+    Single<Tag> likeTag(@Path("tag_id") String tagId);
+
+    @DELETE("api/tags/{tag_id}/likes")
+    Single<Void> deleteLikeFromTag(@Path("tag_id") String tagId);
 }
