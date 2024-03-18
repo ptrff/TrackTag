@@ -39,7 +39,7 @@
     </style>
 
     <style name="PopupMenu" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:popupBackground">@drawable/popup_menu_background</item>
     </style>
 
     <style name="Theme.TrackTag" parent="Base.Theme.TrackTag" />

@@ -28,8 +28,11 @@ public class UserData {
     private final HashSet<String> subs = new HashSet<>();
     private HashMap<String, String> lastTags = new HashMap<>();
 
+    // preferences
     private boolean isNotificationsAllowed;
-    private int notificationsInterval; // 1h by default
+    private int notificationsInterval; // 1h (1) by default
+    private boolean allowOptionsOnMainScreen;
+    private boolean nightMode;
 
     private UserData() {
     }
@@ -49,10 +52,14 @@ public class UserData {
         userName = preferences.getString("userName", "");
         accessToken = preferences.getString("accessToken", "");
         subs.addAll(preferences.getStringSet("subs", new HashSet<>()));
+
+        // preferences
         isNotificationsAllowed = preferences.getBoolean("isNotificationsAllowed", false);
+        notificationsInterval = preferences.getInt("notificationsInterval", 1);
+        allowOptionsOnMainScreen = preferences.getBoolean("allowOptionsOnMainScreen", true);
+        nightMode = preferences.getBoolean("nightMode", false);
 
-        notificationsInterval = preferences.getInt("notificationsInterval", 3600);
-
+        // last tags
         Gson gson = new Gson();
         String hashMapString = preferences.getString("lastTags", "{}");
         Type type = new TypeToken<HashMap<String, String>>() {
@@ -69,7 +76,27 @@ public class UserData {
         subs.clear();
         lastTags.clear();
         isNotificationsAllowed = false;
-        notificationsInterval = 3600;
+        notificationsInterval = 1;
+        allowOptionsOnMainScreen = true;
+        nightMode = false;
+    }
+
+    public boolean isNightMode() {
+        return nightMode;
+    }
+
+    public void setNightMode(boolean nightMode) {
+        this.nightMode = nightMode;
+        editor.putBoolean("nightMode", nightMode).commit();
+    }
+
+    public boolean isAllowOptionsOnMainScreen() {
+        return allowOptionsOnMainScreen;
+    }
+
+    public void setAllowOptionsOnMainScreen(boolean allowOptionsOnMainScreen) {
+        this.allowOptionsOnMainScreen = allowOptionsOnMainScreen;
+        editor.putBoolean("allowOptionsOnMainScreen", allowOptionsOnMainScreen).commit();
     }
 
     public int getNotificationsInterval() {

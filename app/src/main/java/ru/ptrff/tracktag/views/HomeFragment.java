@@ -45,6 +45,7 @@ public class HomeFragment extends Fragment {
     private OptionsAdapter optionsAdapter;
     private MainFragmentCallback mainFragmentCallback;
     private LinearLayoutManager tagsListLayoutManager;
+    private boolean allowingPermission;
 
     public HomeFragment() {
     }
@@ -69,7 +70,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (allowingPermission) {
+            allowingPermission = false;
+            return;
+        }
         viewModel.getData();
+        checkOptionsVisibility();
     }
 
     @SuppressLint("CheckResult")
@@ -162,6 +168,7 @@ public class HomeFragment extends Fragment {
     private boolean liftOptionsVisible;
 
     private void liftOptions(boolean lift) {
+        if (binding.optionsList.getVisibility() == View.GONE) return;
         if (liftOptionsAnimation && lift == liftOptionsVisible) return;
         else if (liftOptionsAnimation) {
             ViewCompat
@@ -283,9 +290,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onSubscribeClick(Tag tag) {
                 viewModel.updateLastTagsIDs();
-                if (checkForPermission()) {
-                    viewModel.subscribe(tag);
-                }
+                checkForPermission();
+                viewModel.subscribe(tag);
             }
 
             @Override
@@ -354,7 +360,16 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private boolean checkForPermission() {
+    private void checkOptionsVisibility() {
+        if (UserData.getInstance().isAllowOptionsOnMainScreen()) {
+            binding.optionsList.setVisibility(View.VISIBLE);
+        } else {
+            binding.optionsList.setVisibility(View.GONE);
+        }
+    }
+
+    private void checkForPermission() {
+        allowingPermission = true;
         if (ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             UserData.getInstance().setNotificationsAllowed(false);
@@ -363,10 +378,9 @@ public class HomeFragment extends Fragment {
                         new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1
                 );
             }
-            Toast.makeText(requireContext(), R.string.allow_notifications_first, Toast.LENGTH_SHORT).show();
-            return false;
+            Toast.makeText(requireContext(), R.string.allow_notifications_to_receive_them, Toast.LENGTH_SHORT).show();
+            return;
         }
         UserData.getInstance().setNotificationsAllowed(true);
-        return true;
     }
 }

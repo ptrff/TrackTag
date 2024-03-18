@@ -51,7 +51,8 @@ public class PostCheckingWorker extends Worker {
 
     private void handleNewPosts(List<Tag> tags) {
         Collections.reverse(tags);
-        for (User sub : data.getSubs()) {
+        for (int i = 0; i < data.getSubs().size(); i++) {
+            User sub = data.getSubs().get(i);
             Log.d(getClass().getCanonicalName(), "checking for new posts for " + sub.getUsername());
             for (Tag tag : tags) {
                 if (tag.getUser() != null && tag.getUser().getUsername().equals(sub.getUsername())) {
@@ -59,11 +60,12 @@ public class PostCheckingWorker extends Worker {
                         createNotification(
                                 getApplicationContext().getString(R.string.something_new),
                                 getApplicationContext().getString(R.string.user_posted_a_new_tag, sub.getUsername()),
-                                sub
+                                sub,
+                                i
                         );
                         Log.d(getClass().getCanonicalName(), "new post " + tag.getId() + " saved id " + data.getLastTagId(sub));
                     } else {
-                        createNotification("no for", sub.getUsername(), sub);
+                        createNotification("no for", sub.getUsername(), sub, i);
                         Log.d(getClass().getCanonicalName(), "no new post");
                     }
                     break;
@@ -72,20 +74,20 @@ public class PostCheckingWorker extends Worker {
         }
     }
 
-    private void createNotification(String title, String content, User user) {
+    private void createNotification(String title, String content, User user, int id) {
         {
             // creating channel for sub (will be ignored if channel id already exists)
             CharSequence name = "New tags from "+user.getUsername();
             String description = "Receive updates about new tags from "+user.getUsername();
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("tracktag-"+user.getId(), name, importance);
+            NotificationChannel channel = new NotificationChannel("tracktag-"+user.getUsername(), name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
 
         // creating notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "tracktag")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "tracktag-"+user.getUsername())
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
                 .setContentText(content)
@@ -94,7 +96,7 @@ public class PostCheckingWorker extends Worker {
         // displaying notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
         // unique id for each notification
-        notificationManager.notify(0, builder.build());
+        notificationManager.notify(id, builder.build());
     }
 
     private void handleError(Throwable throwable) {

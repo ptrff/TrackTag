@@ -35,6 +35,16 @@
         android:name="ru.ptrff.tracktag.views.AddTagFragment"
         android:label="AddTagFragment" />
 
+    <fragment
+        android:id="@+id/preferencesFragment"
+        android:name="ru.ptrff.tracktag.views.PreferencesFragment"
+        android:label="PreferenceFragment" />
+
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="ru.ptrff.tracktag.views.AboutFragment"
+        android:label="AboutFragment" />
+
 
     <action
         android:id="@+id/action_global_homeFragment"
@@ -74,6 +84,20 @@
     <action
         android:id="@+id/action_global_addTagFragment"
         app:destination="@id/addTagFragment"
+        app:enterAnim="@android:anim/fade_in"
+        app:exitAnim="@android:anim/fade_out"
+        app:popEnterAnim="@android:anim/fade_in"
+        app:popExitAnim="@android:anim/fade_out" />
+    <action
+        android:id="@+id/action_global_preferenceFragment"
+        app:destination="@id/preferencesFragment"
+        app:enterAnim="@android:anim/fade_in"
+        app:exitAnim="@android:anim/fade_out"
+        app:popEnterAnim="@android:anim/fade_in"
+        app:popExitAnim="@android:anim/fade_out" />
+    <action
+        android:id="@+id/action_global_aboutFragment"
+        app:destination="@id/aboutFragment"
         app:enterAnim="@android:anim/fade_in"
         app:exitAnim="@android:anim/fade_out"
         app:popEnterAnim="@android:anim/fade_in"

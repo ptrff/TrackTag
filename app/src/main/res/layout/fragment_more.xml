@@ -14,7 +14,7 @@
         style="?attr/materialCardViewFilledStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="32dp"
         app:strokeWidth="0dp">
 
         <LinearLayout
@@ -26,15 +26,17 @@
 
             <ImageView
                 android:id="@+id/profile_pic"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:src="@drawable/ic_person"
+                android:layout_marginBottom="8dp"
                 app:tint="?attr/colorError" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/greetings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="@string/greetings"
                 android:textSize="20sp" />
 

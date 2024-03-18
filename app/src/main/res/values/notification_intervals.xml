@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notification_intervals">
+        <item>30 мин</item>
+        <item>1 час</item>
+        <item>3 часа</item>
+    </string-array>
+</resources>

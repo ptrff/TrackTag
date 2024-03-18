@@ -2,8 +2,11 @@ package ru.ptrff.tracktag.views;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -106,6 +110,7 @@ public class TagFragment extends Fragment {
                     binding.tag.optionsButton.setChecked(UserData.getInstance().isSubscribed(tag.getUser()));
                     binding.tag.optionsButton.setOnClickListener(v -> {
                         viewModel.subscribe(tag);
+                        checkForPermission();
                     });
                 }
             } else {
@@ -159,5 +164,20 @@ public class TagFragment extends Fragment {
             Toast.makeText(requireContext(), R.string.tag_deleted, Toast.LENGTH_SHORT).show();
             callback.performAction(OptionActions.LIST);
         });
+    }
+
+    private void checkForPermission() {
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            UserData.getInstance().setNotificationsAllowed(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestPermissions(
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1
+                );
+            }
+            Toast.makeText(requireContext(), R.string.allow_notifications_to_receive_them, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        UserData.getInstance().setNotificationsAllowed(true);
     }
 }

@@ -24,13 +24,15 @@ import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -57,7 +59,6 @@ import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
-import ru.ptrff.tracktag.viewmodels.HomeViewModel;
 import ru.ptrff.tracktag.worker.PostCheckingWorker;
 
 
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkDarkMode();
 
         if (savedInstanceState == null) {
             // Restore User Data
@@ -423,6 +426,14 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
                 selectedOption = OptionActions.LIST;
                 binding.bottomNavigationView.setSelectedItemId(R.id.home);
                 break;
+            case PREF:
+                selectedOption = OptionActions.PREF;
+                binding.bottomNavigationView.setSelectedItemId(R.id.more);
+                break;
+            case ABOUT:
+                selectedOption = OptionActions.ABOUT;
+                binding.bottomNavigationView.setSelectedItemId(R.id.more);
+                break;
         }
     }
 
@@ -514,6 +525,12 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             case SUBS:
                 navController.navigate(R.id.action_global_subsFragment);
                 break;
+            case PREF:
+                navController.navigate(R.id.action_global_preferenceFragment);
+                break;
+            case ABOUT:
+                navController.navigate(R.id.action_global_aboutFragment);
+                break;
         }
         selectedOption = OptionActions.LIST;
     }
@@ -538,23 +555,46 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
         WorkManager manager = WorkManager.getInstance(this);
 
         manager.getWorkInfosByTagLiveData("post_checking").observe(this, workInfos -> {
-            if (workInfos.size()==0 || workInfos.get(0).getState().isFinished()) {
-                manager.enqueueUniquePeriodicWork(
-                        "post_checking",
-                        ExistingPeriodicWorkPolicy.KEEP,
-                        new PeriodicWorkRequest.Builder(PostCheckingWorker.class, 15, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
-                                .addTag("post_checking")
-                                .build()
-                        );
+            if (workInfos.size() == 0 || workInfos.get(0).getState().isFinished()) {
                 Log.d(getClass().getCanonicalName(), "worker started");
-            }else{
+            } else {
                 Log.d(getClass().getCanonicalName(), "worker working");
             }
         });
+
+        // TODO intervals from userdata
+        manager.enqueueUniquePeriodicWork(
+                "post_checking",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                new PeriodicWorkRequest.Builder(PostCheckingWorker.class,
+                        20, TimeUnit.MINUTES,
+                        15, TimeUnit.MINUTES)
+                        .addTag("post_checking")
+                        .setConstraints(
+                                new Constraints(
+                                        NetworkType.CONNECTED,
+                                        false,
+                                        false,
+                                        false)
+                        )
+                        .build()
+        );
+    }
+
+    private void checkDarkMode() {
+        if (UserData.getInstance().isNightMode()) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
     }
 
     private void initMapKit() {
-        MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY);
+        try {
+            MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY);
+        } catch (AssertionError a) {
+            Log.e("MapKit", "Error: " + a.getMessage());
+        }
         MapKitFactory.initialize(this);
     }
 

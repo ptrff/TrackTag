@@ -57,7 +57,7 @@
     <string name="done">Готово</string>
     <string name="delete">Удалить</string>
     <string name="choose_photo">Выберите фото</string>
-    <string name="allow_notifications_first">Сначала разрешите уведомления</string>
+    <string name="allow_notifications_to_receive_them">Разрешите уведомления, чтобы их получать</string>
     <string name="something_new">Что-то новенькое!</string>
     <string name="user_posted_a_new_tag">Пользователь %1$s опубликовал новый тэг!</string>
     <string name="select_image_source">Выберите источник изображения</string>
@@ -67,4 +67,20 @@
     <string name="you_have_logged_in">Вы успешно вошли в аккаунт</string>
     <string name="tag_created">Тэг успешно создан</string>
     <string name="tag_deleted">Тэг удалён</string>
+    <string name="notifications">Уведомления</string>
+    <string name="settings">Настройки</string>
+    <string name="notifications_interval">Частота уведомлений</string>
+    <string name="notifications_interval_summary">С каким интервалом вы хотите получать уведомления</string>
+    <string name="allow_options_on_main_screen">Опции на главном экране</string>
+    <string name="are_visible">Видны</string>
+    <string name="are_hidden">Спрятаны</string>
+    <string name="enabled">Вкл</string>
+    <string name="disabled">Выкл</string>
+    <string name="force_dark_mode">Тёмная тема</string>
+    <string name="restart_required_for_applying">Для применения изменений нужно перезапустить приложение</string>
+    <string name="restart_now">Перезапустить</string>
+    <string name="later">Позже</string>
+    <string name="contacts">Контакты</string>
+    <string name="application">Приложение</string>
+    <string name="choose_link">Выберите ссылку</string>
 </resources>

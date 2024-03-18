@@ -28,8 +28,9 @@
 
             <ImageView
                 android:id="@+id/profile_pic"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
                 android:src="@drawable/ic_person"
                 app:tint="?attr/colorError" />
 
@@ -37,6 +38,7 @@
                 android:id="@+id/greetings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="@string/greetings"
                 android:textSize="20sp" />
 

@@ -4,6 +4,6 @@ public enum OptionActions {
     LIST,
     AUTH,
     SUBS,
-    SETTINGS,
+    PREF,
     ABOUT
 }
