@@ -146,17 +146,6 @@ public class HomeViewModel extends ViewModel {
         updateLastTagsIDs(tags.getValue());
     }
 
-    public void addNetworkConnectionListener(ConnectivityManager connectivityManager) {
-        if (connectivityManager.isDefaultNetworkActive()) {
-            getData();
-        }
-        /*connectivityManager.addDefaultNetworkActiveListener(() -> {
-            if (connectivityManager.isDefaultNetworkActive()) {
-                getData();
-            }
-        });*/
-    }
-
     public boolean isInitiated() {
         return isInitiated;
     }

@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -56,6 +57,7 @@ import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.ActivityMainBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
+import ru.ptrff.tracktag.viewmodels.HomeViewModel;
 import ru.ptrff.tracktag.worker.PostCheckingWorker;
 
 

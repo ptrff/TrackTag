@@ -62,8 +62,8 @@ public class AddTagFragment extends Fragment {
         viewModel.getSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success) {
                 Toast.makeText(requireContext(), R.string.tag_created, Toast.LENGTH_SHORT).show();
-                ((MainFragmentCallback) requireActivity()).performAction(OptionActions.LIST);
-                // TODO reload list
+                MainFragmentCallback callback =((MainFragmentCallback) requireActivity());
+                callback.performAction(OptionActions.LIST);
             }
         });
     }
@@ -74,7 +74,6 @@ public class AddTagFragment extends Fragment {
             previewImage(viewModel.getImageUri());
         }
         binding.descriptionField.setText(viewModel.getDescription());
-
 
         UserData data = UserData.getInstance();
         if (data.isLoggedIn()) {
@@ -113,6 +112,11 @@ public class AddTagFragment extends Fragment {
                     viewModel.getLongitude(),
                     binding.descriptionField.getText().toString()
             );
+        });
+
+        binding.cancelButton.setOnClickListener(v -> {
+            MainFragmentCallback callback =((MainFragmentCallback) requireActivity());
+            callback.performAction(OptionActions.LIST);
         });
     }
 

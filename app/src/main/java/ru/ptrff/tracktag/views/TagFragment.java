@@ -9,10 +9,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -21,14 +23,18 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import ru.ptrff.tracktag.R;
+import ru.ptrff.tracktag.data.OptionActions;
+import ru.ptrff.tracktag.data.UserData;
 import ru.ptrff.tracktag.databinding.FragmentTagBinding;
 import ru.ptrff.tracktag.interfaces.MainFragmentCallback;
 import ru.ptrff.tracktag.models.Tag;
+import ru.ptrff.tracktag.viewmodels.TagViewModel;
 
 public class TagFragment extends Fragment {
 
     private FragmentTagBinding binding;
-    private MainFragmentCallback mainFragmentCallback;
+    private TagViewModel viewModel;
+    private MainFragmentCallback callback;
 
     public TagFragment() {
     }
@@ -38,13 +44,20 @@ public class TagFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentTagBinding.inflate(inflater);
         Tag tag = getArguments().getParcelable("tag");
-        mainFragmentCallback = (MainFragmentCallback) requireActivity();
-        if (tag != null) setTag(tag);
+        viewModel = new ViewModelProvider(this).get(TagViewModel.class);
+        callback = (MainFragmentCallback) requireActivity();
+        if (tag != null) {
+            setTag(tag);
+            initObservers();
+        }
         return binding.getRoot();
     }
 
     public void setTag(Tag tag) {
         binding.tag.getRoot().post(() -> {
+            // background
+            binding.tag.background.setClickable(false);
+            binding.tag.background.setBackground(null);
 
             // Picture
             if (tag.getImage() != null && !tag.getImage().isEmpty()) {
@@ -56,7 +69,6 @@ public class TagFragment extends Fragment {
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                                 setImageSize();
                                 Log.d(this.getClass().getCanonicalName(), "No image: " + tag.getImage());
-                                binding.tag.image.setVisibility(View.GONE);
                                 return false;
                             }
 
@@ -71,7 +83,6 @@ public class TagFragment extends Fragment {
                 setImageSize();
             }
 
-
             // author
             if (tag.getUser() != null) {
                 binding.tag.author.setText(tag.getUser().getUsername());
@@ -79,32 +90,55 @@ public class TagFragment extends Fragment {
                 binding.tag.author.setText(R.string.guest);
             }
 
+            // options
+            if (tag.getUser() != null) {
+                binding.tag.optionsButton.setVisibility(View.VISIBLE);
+                if (UserData.getInstance().isLoggedIn()
+                        && UserData.getInstance().getUserName().equals(tag.getUser().getUsername())) {
+                    binding.tag.optionsButton.setCheckable(false);
+                    binding.tag.optionsButton.setIconResource(R.drawable.ic_delete);
+                    binding.tag.optionsButton.setOnClickListener(v -> {
+                        viewModel.deleteTag(tag);
+                    });
+                } else {
+                    binding.tag.optionsButton.setCheckable(true);
+                    binding.tag.optionsButton.setIconResource(R.drawable.sl_notification);
+                    binding.tag.optionsButton.setChecked(UserData.getInstance().isSubscribed(tag.getUser()));
+                    binding.tag.optionsButton.setOnClickListener(v -> {
+                        viewModel.subscribe(tag);
+                    });
+                }
+            } else {
+                binding.tag.optionsButton.setVisibility(View.GONE);
+            }
+
             // description
             binding.tag.description.setText(tag.getDescription());
 
             // like
-            if (tag.getLiked()) binding.tag.likeButton.setChecked(true);
+            binding.tag.likeButton.clearOnCheckedChangeListeners();
+            binding.tag.likeButton.setCheckable(UserData.getInstance().isLoggedIn());
+            binding.tag.likeButton.setChecked(tag.getLiked());
             binding.tag.likeButton.setText("" + tag.getLikes());
             binding.tag.likeButton.addOnCheckedChangeListener((button, isChecked) -> {
-                binding.tag.likeButton.post(() -> {
-                    if (isChecked) {
-                        binding.tag.likeButton.setText("" + (tag.getLikes() + 1));
-                    } else {
-                        binding.tag.likeButton.setText("" + tag.getLikes());
-                    }
-                });
+                tag.setLiked(isChecked);
+                if (isChecked) {
+                    tag.setLikes(tag.getLikes() + 1);
+                    viewModel.likeTag(tag, true);
+                } else {
+                    tag.setLikes(tag.getLikes() - 1);
+                    viewModel.likeTag(tag, false);
+                }
+                binding.tag.likeButton.setText("" + tag.getLikes());
             });
-
             //focus
             binding.tag.focusButton.setOnClickListener(v -> {
-                if (mainFragmentCallback != null) {
-                    mainFragmentCallback.focusOnTag(tag);
-                }
+                callback.focusOnTag(tag);
             });
 
-            //back
+            // back
             binding.backButton.setOnClickListener(v -> {
-                getParentFragmentManager().popBackStack();
+                callback.performAction(OptionActions.LIST);
             });
         });
     }
@@ -118,5 +152,12 @@ public class TagFragment extends Fragment {
             binding.tag.image.getLayoutParams().height = binding.backButton.getMeasuredHeight();
         }
         binding.tag.image.requestLayout();
+    }
+
+    private void initObservers(){
+        viewModel.getDeleteDone().observe(getViewLifecycleOwner(), success -> {
+            Toast.makeText(requireContext(), R.string.tag_deleted, Toast.LENGTH_SHORT).show();
+            callback.performAction(OptionActions.LIST);
+        });
     }
 }

@@ -66,4 +66,5 @@
     <string name="you_have_logged_out">Вы вышли из аккаунта</string>
     <string name="you_have_logged_in">Вы успешно вошли в аккаунт</string>
     <string name="tag_created">Тэг успешно создан</string>
+    <string name="tag_deleted">Тэг удалён</string>
 </resources>

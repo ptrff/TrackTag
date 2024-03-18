@@ -1,13 +1,10 @@
 package ru.ptrff.tracktag.views;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,8 +25,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.Objects;
 
 import ru.ptrff.tracktag.R;
 import ru.ptrff.tracktag.adapters.OptionsAdapter;
@@ -65,13 +60,16 @@ public class HomeFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         if (!viewModel.isInitiated()) {
             viewModel.setLocalRepo(new TagLocalRepository(requireContext()));
-            viewModel.addNetworkConnectionListener(
-                    Objects.requireNonNull(getSystemService(requireContext(), ConnectivityManager.class))
-            );
             viewModel.setInitiated(true);
         }
 
         mainFragmentCallback = (MainFragmentCallback) requireActivity();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        viewModel.getData();
     }
 
     @SuppressLint("CheckResult")
@@ -91,7 +89,7 @@ public class HomeFragment extends Fragment {
         initClickListeners();
         checkSearchFilters();
         setBottomSheetPeekHeight();
-        showUpButton(false);
+        hideUpButton();
         setTagsListHeight();
     }
 
@@ -205,7 +203,7 @@ public class HomeFragment extends Fragment {
         liftOptionsAnimation = true;
     }
 
-    private boolean upButtonAnimation = false;
+    private boolean upButtonAnimation;
     private boolean upButtonVisible;
 
     private void showUpButton(boolean visible) {
@@ -233,6 +231,11 @@ public class HomeFragment extends Fragment {
                 .withEndAction(() -> upButtonAnimation = false)
                 .start();
         upButtonAnimation = true;
+    }
+
+    private void hideUpButton() {
+        binding.upButton.post(() -> binding.upButton.setTranslationX(binding.upButton.getMeasuredWidth()
+                + ((ViewGroup.MarginLayoutParams) binding.upButton.getLayoutParams()).getMarginEnd()));
     }
 
     private void hideKeyboard() {
@@ -268,6 +271,7 @@ public class HomeFragment extends Fragment {
         tagsAdapter.setTagEvents(new TagsAdapter.TagEvents() {
             @Override
             public void onDeleteClick(Tag tag) {
+                Toast.makeText(requireContext(), R.string.tag_deleted, Toast.LENGTH_SHORT).show();
                 viewModel.deleteTag(tag);
             }
 
@@ -317,7 +321,7 @@ public class HomeFragment extends Fragment {
                     showUpButton(false);
                 }
 
-                liftOptions(dy > 0  || binding.searchField.hasFocus());
+                liftOptions(dy > 0 || binding.searchField.hasFocus());
             }
         });
     }
