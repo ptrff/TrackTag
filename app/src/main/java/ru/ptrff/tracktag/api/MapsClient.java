@@ -33,13 +33,14 @@ public class MapsClient {
     }
 
     public static Retrofit getClient() {
-        if (retrofit == null) {
+        if (retrofit == null || runningWithAuth) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(new GsonStringConverterFactory())
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                     .build();
+            runningWithAuth = false;
         }
         return retrofit;
     }

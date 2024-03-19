@@ -562,13 +562,16 @@ public class MainActivity extends AppCompatActivity implements MainFragmentCallb
             }
         });
 
-        // TODO intervals from userdata
+        Integer interval = new Integer[]{30, 60, 180}[
+                UserData.getInstance().getNotificationsInterval()];
+
+
         manager.enqueueUniquePeriodicWork(
                 "post_checking",
                 ExistingPeriodicWorkPolicy.UPDATE,
                 new PeriodicWorkRequest.Builder(PostCheckingWorker.class,
-                        20, TimeUnit.MINUTES,
-                        15, TimeUnit.MINUTES)
+                        interval, TimeUnit.MINUTES,
+                        interval-5, TimeUnit.MINUTES)
                         .addTag("post_checking")
                         .setConstraints(
                                 new Constraints(

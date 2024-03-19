@@ -16,7 +16,7 @@ public class MapsRepository {
     private final MapsApi mapsApi;
 
     public MapsRepository() {
-        if (UserData.getInstance().getAccessToken() != null) {
+        if (UserData.getInstance().isLoggedIn()) {
             mapsApi = MapsClient.getClient(
                     UserData.getInstance().getAccessToken()
             ).create(MapsApi.class);
